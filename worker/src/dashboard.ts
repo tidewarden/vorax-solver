@@ -105,6 +105,12 @@ export const DASHBOARD_HTML = `<!doctype html>
   button.run { padding: 4px 12px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--accent); font: 500 13px inherit; cursor: pointer; white-space: nowrap; }
   button.run:hover:not(:disabled) { border-color: var(--accent); }
   button.run:disabled { color: var(--muted); cursor: default; }
+  /* one of a few lists at a time (the cards read unsure per release): the shown one filled in */
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
+  .tabs button { padding: 4px 12px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--muted); font: 500 12.5px inherit; font-variant-numeric: tabular-nums; cursor: pointer; }
+  .tabs button:hover { border-color: var(--accent); color: var(--text); }
+  .tabs button[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+  .tab-note { margin: 0 0 10px; color: var(--faint); font-size: 12px; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -160,7 +166,9 @@ export const DASHBOARD_HTML = `<!doctype html>
       </section>
       <section class="card">
         <h2>Cards read unsure</h2>
-        <p class="sub">Each card on the boards shared from Oct 26: how many it was offered on, how many the reader wasn't sure of it on, and how many a player corrected a slot to it (it was misread as something else). The most unsure and corrected first: the cards to get more pictures of. A board is shared again on a reroll or a recheck, so a hand can count more than once.</p>
+        <p class="sub">Each card on the boards shared from Oct 26, for one release at a time (the newest first, as each one reads cards better than the last): how many it was offered on, how many the reader wasn't sure of it on, and how many a player corrected a slot to it (it was misread as something else). The most unsure and corrected first: the cards to get more pictures of. A board is shared again on a reroll or a recheck, so a hand can count more than once.</p>
+        <div class="tabs" id="card-tabs" role="group" aria-label="Release"></div>
+        <p class="tab-note" id="card-note"></p>
         <div class="scroll" id="cards"></div>
       </section>
     </div>
@@ -387,6 +395,27 @@ function usage(u) {
   $('usage-card').hidden = false
 }
 
+// The cards read unsure, a tab per recent release and one for all of them: the newest shown first
+const day = t => new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })
+let cardSets = []
+function cardReleases(s) {
+  const all = s.cards || []
+  cardSets = (s.cardReleases || []).map(r => ({ label: r.version + ' · ' + day(r.first), note: num(r.boards) + ' boards from release ' + r.version + ', first played ' + r.first.replace('T', ' ').slice(0, 16) + ' UTC.', cards: r.cards }))
+  cardSets.push({ label: 'All releases', note: 'Every board since Oct 26, whichever release read it.', cards: all })
+  showCards(0)
+}
+function showCards(i) {
+  const set = cardSets[i]
+  $('card-tabs').innerHTML = cardSets.length > 1 ? cardSets.map((c, j) => '<button type="button" data-cards="' + j + '" aria-pressed="' + (i === j) + '">' + esc(c.label) + '</button>').join('') : ''
+  $('card-note').textContent = cardSets.length > 1 ? set.note : ''
+  if (set.cards.length) paged('cards', ['Card', 'Offered', 'Unsure', 'Share unsure', 'Corrected to it'], set.cards.map(c => [c.name, num(c.shown), num(c.unsure), c.shown ? pct(c.unsure / c.shown) : '–', num(c.corrected)]), [1, 2, 3, 4])
+  else $('cards').innerHTML = '<p class="sub">No boards with their cards yet.</p>'
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('button[data-cards]')
+  if (b) showCards(Number(b.dataset.cards))
+})
+
 async function load(pw) {
   password = pw
   const r = await fetch('/v1/stats', { headers: { authorization: 'Bearer ' + pw } })
@@ -419,8 +448,7 @@ async function load(pw) {
         r.boards ? pct(r.unsure / r.boards) : '–', r.boards ? pct(r.corrected / r.boards) : '–',
       ]), [2, 3, 4, 5, 6])
   else $('releases').innerHTML = ''
-  if (s.cards && s.cards.length) paged('cards', ['Card', 'Offered', 'Unsure', 'Share unsure', 'Corrected to it'], s.cards.map(c => [c.name, num(c.shown), num(c.unsure), c.shown ? pct(c.unsure / c.shown) : '–', num(c.corrected)]), [1, 2, 3, 4])
-  else $('cards').innerHTML = '<p class="sub">No boards with their cards yet.</p>'
+  cardReleases(s)
   try {
     const h = (await fromRepo('smarter')).filter(e => e.fixed).reverse()
     // reached 840k on the fixed games: "166 (69%)"

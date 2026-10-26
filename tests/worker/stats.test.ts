@@ -353,5 +353,32 @@ describe('cards read unsure', () => {
   })
   it('adds up across pulls', () => {
     expect(report(digest(rows.slice(2), digest(rows.slice(0, 2)))).cards).toEqual(summarize(rows).cards)
+    expect(report(digest(rows.slice(2), digest(rows.slice(0, 2)))).cardReleases).toEqual(summarize(rows).cardReleases)
+  })
+  it('per release, the newest first: each release reads cards better than the last', () => {
+    const newer = [
+      ...rows,
+      row('2026-10-28T10:00:00Z', 'b', board('r4', 2, { app: 'abc1234-overlay', cards: ['Mutagenic Powder'], unsureCards: [], correctedCards: [] })),
+      row('2026-10-28T10:01:00Z', 'd', board('r5', 2, { app: 'abc1234', cards: ['Xeno-Hormone'], unsureCards: ['Xeno-Hormone'], correctedCards: [] })),
+    ]
+    const r = summarize(newer).cardReleases!
+    expect(r.map(x => [x.version, x.boards])).toEqual([['abc1234', 2], ['9832893', 3]])
+    expect(r[0].cards).toEqual([
+      { name: 'Xeno-Hormone', shown: 1, unsure: 1, corrected: 0 },
+      { name: 'Mutagenic Powder', shown: 1, unsure: 0, corrected: 0 },
+    ])
+    expect(r[1].cards).toEqual(summarize(rows).cards)
+    // all releases together, as before
+    expect(summarize(newer).cards.find(c => c.name === 'Xeno-Hormone')).toEqual({ name: 'Xeno-Hormone', shown: 3, unsure: 1, corrected: 0 })
+  })
+  it('days counted before the split by release still count in all releases', () => {
+    const old = digest(rows)
+    for (const d of old.days) {
+      for (const c of d.cards ?? []) delete c.version
+      delete d.cardBoards
+    }
+    const s = report(old)
+    expect(s.cards).toEqual(summarize(rows).cards)
+    expect(s.cardReleases).toEqual([])
   })
 })

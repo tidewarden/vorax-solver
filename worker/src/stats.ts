@@ -70,6 +70,10 @@ export interface Stats {
   /** each card on boards from Oct 26: the boards it was offered on, read unsure on and corrected to by hand (the
    *  card it really was), the most unsure first */
   cards: CardCount[]
+  /** the same per release, newest first (CARD_RELEASES of them): first, when its first game started; boards, its
+   *  boards that carried their hand's names. The Solver reads cards better with each release, so the newest says
+   *  what still needs pictures. Absent from summaries made before Oct 26's version split. */
+  cardReleases?: { version: string; first: string; boards: number; cards: CardCount[] }[]
 }
 
 /** The finished games a point of the rolling chart averages over. */
@@ -80,6 +84,8 @@ const ROLLING_POINTS = 200
 const RELEASE_MIN = 30
 /** The releases listed, newest first. */
 const RELEASES = 15
+/** The releases the cards read unsure are listed for. */
+const CARD_RELEASES = 8
 
 /** The rolling average of the last ROLLING finished games, a point every few games, the latest always last. */
 function rolling(finished: GameRecord[]): Stats['rolling'] {
@@ -136,9 +142,11 @@ const RECENT = 25
 export interface GameRecord { run: string; n: number; start: string; day: string; boards: number; round: number; read: number; app: boolean; version: string; played: boolean; final: number | null; predictions: number[]; last: number; score: number; unsure?: number; corrected?: number }
 /** One day's boards: how many, how many a player corrected or the reader was unsure of, the daily player codes and
  *  installs (their first 12 characters) seen, and the boards and problems per setup. */
-export interface DayRecord { day: string; boards: number; corrected: number; unsure: number; clients: string[]; installs: string[]; setups: Setup[]; cards?: CardCount[] }
+export interface DayRecord { day: string; boards: number; corrected: number; unsure: number; clients: string[]; installs: string[]; setups: Setup[]; cards?: DayCardCount[]; cardBoards?: Record<string, number> }
 type Setup = { by: string; group: string; boards: number; unsure: number; numbers: number }
 export type CardCount = { name: string; shown: number; unsure: number; corrected: number }
+/** a card's counts on one day's boards from one release (version: absent on days counted before Oct 26's split) */
+export type DayCardCount = CardCount & { version?: string }
 /** Everything the dashboard's numbers are worked out from; upto: the newest board in it (when it came). */
 export interface Digest { upto: string; games: GameRecord[]; days: DayRecord[] }
 
@@ -153,7 +161,7 @@ export function digest(rows: StatRow[], prior: Digest = emptyDigest()): Digest {
   // a run's latest game: a new one starts when a round read for sure goes back
   const current = new Map<string, GameRecord>()
   for (const g of games.values()) if ((current.get(g.run)?.n ?? -1) < g.n) current.set(g.run, g)
-  const days = new Map(prior.days.map(d => [d.day, { ...d, clients: new Set(d.clients), installs: new Set(d.installs), setups: new Map(d.setups.map(x => [`${x.by}|${x.group}`, { ...x }])), cards: new Map((d.cards ?? []).map(c => [c.name, { ...c }])) }]))
+  const days = new Map(prior.days.map(d => [d.day, { ...d, clients: new Set(d.clients), installs: new Set(d.installs), setups: new Map(d.setups.map(x => [`${x.by}|${x.group}`, { ...x }])), cards: new Map((d.cards ?? []).map(c => [`${c.version ?? ''}|${c.name}`, { ...c }])), cardBoards: { ...d.cardBoards } }]))
   // boards from before Oct 24 had their tanks and instruments: the round each instrument was first seen, for the
   // ones that fire every few rounds
   const picked = new Map<GameRecord, Map<string, number>>()
@@ -167,7 +175,7 @@ export function digest(rows: StatRow[], prior: Digest = emptyDigest()): Digest {
     }
     if (r.received > upto) upto = r.received
     const day = r.received.slice(0, 10)
-    const d = days.get(day) ?? { day, boards: 0, corrected: 0, unsure: 0, clients: new Set<string>(), installs: new Set<string>(), setups: new Map<string, Setup>(), cards: new Map<string, CardCount>() }
+    const d = days.get(day) ?? { day, boards: 0, corrected: 0, unsure: 0, clients: new Set<string>(), installs: new Set<string>(), setups: new Map<string, Setup>(), cards: new Map<string, DayCardCount>(), cardBoards: {} as Record<string, number> }
     d.boards++
     d.clients.add(r.client)
     if (b.install) d.installs.add(b.install.slice(0, RUN))
@@ -182,7 +190,9 @@ export function digest(rows: StatRow[], prior: Digest = emptyDigest()): Digest {
       if (b.unreadable || b.unsure?.some(f => /\.(activity|quantity)$/.test(f))) g.numbers++
       d.setups.set(k, g)
     }
-    const card = (name: string) => d.cards.get(name) ?? d.cards.set(name, { name, shown: 0, unsure: 0, corrected: 0 }).get(name)!
+    const version = b.app.replace(/-overlay$/, '')
+    const card = (name: string) => d.cards.get(`${version}|${name}`) ?? d.cards.set(`${version}|${name}`, { name, version, shown: 0, unsure: 0, corrected: 0 }).get(`${version}|${name}`)!
+    if (b.cards?.length) d.cardBoards[version] = (d.cardBoards[version] ?? 0) + 1
     for (const n of new Set(b.cards ?? [])) card(n).shown++
     for (const n of new Set(b.unsureCards ?? [])) card(n).unsure++
     for (const n of new Set(b.correctedCards ?? [])) card(n).corrected++
@@ -191,7 +201,7 @@ export function digest(rows: StatRow[], prior: Digest = emptyDigest()): Digest {
     const sure = !b.unsure?.includes('round')
     let g = current.get(run)
     if (!g || (sure && b.round < g.read)) {
-      g = { run, n: g ? g.n + 1 : 0, start: r.received, day, boards: 0, round: 0, read: 0, app: /-overlay$/.test(b.app), version: b.app.replace(/-overlay$/, ''), played: false, final: null, predictions: [], last: -1, score: 0, unsure: 0, corrected: 0 }
+      g = { run, n: g ? g.n + 1 : 0, start: r.received, day, boards: 0, round: 0, read: 0, app: /-overlay$/.test(b.app), version, played: false, final: null, predictions: [], last: -1, score: 0, unsure: 0, corrected: 0 }
       games.set(gameKey(g), g)
       current.set(run, g)
     }
@@ -223,7 +233,8 @@ export function digest(rows: StatRow[], prior: Digest = emptyDigest()): Digest {
     days: [...days.values()].sort((a, b) => a.day.localeCompare(b.day)).map(d => ({
       day: d.day, boards: d.boards, corrected: d.corrected, unsure: d.unsure, clients: [...d.clients].sort(), installs: [...d.installs].sort(),
       setups: [...d.setups.values()].sort((a, b) => a.by.localeCompare(b.by) || a.group.localeCompare(b.group)),
-      ...(d.cards.size ? { cards: [...d.cards.values()].sort((a, b) => a.name.localeCompare(b.name)) } : {}),
+      ...(d.cards.size ? { cards: [...d.cards.values()].sort((a, b) => a.name.localeCompare(b.name) || (a.version ?? '').localeCompare(b.version ?? '')) } : {}),
+      ...(Object.keys(d.cardBoards).length ? { cardBoards: d.cardBoards } : {}),
     })),
   }
 }
@@ -264,13 +275,24 @@ export function report(dg: Digest, now = new Date()): Stats {
     g.numbers += x.numbers
     setups.set(k, g)
   }
-  const cards = new Map<string, CardCount>()
-  for (const c of dg.days.flatMap(d => d.cards ?? [])) {
-    const t = cards.get(c.name) ?? cards.set(c.name, { name: c.name, shown: 0, unsure: 0, corrected: 0 }).get(c.name)!
-    t.shown += c.shown
-    t.unsure += c.unsure
-    t.corrected += c.corrected
+  // the cards' counts summed by name, over all of them or one release's
+  const byCard = (counts: CardCount[]) => {
+    const m = new Map<string, CardCount>()
+    for (const c of counts) {
+      const t = m.get(c.name) ?? m.set(c.name, { name: c.name, shown: 0, unsure: 0, corrected: 0 }).get(c.name)!
+      t.shown += c.shown
+      t.unsure += c.unsure
+      t.corrected += c.corrected
+    }
+    return [...m.values()].sort((a, b) => b.unsure + b.corrected - (a.unsure + a.corrected) || b.shown - a.shown)
   }
+  const dayCards = dg.days.flatMap(d => d.cards ?? [])
+  // a release starts with its first game, played or not (a version's boards all belong to its games)
+  const firsts = new Map<string, string>()
+  for (const g of dg.games) if (!firsts.has(g.version) || g.start < firsts.get(g.version)!) firsts.set(g.version, g.start)
+  const cardVersions = [...new Set(dayCards.flatMap(c => (c.version === undefined ? [] : [c.version])))]
+    .map(version => ({ version, first: firsts.get(version) ?? '' }))
+    .sort((a, b) => b.first.localeCompare(a.first)).slice(0, CARD_RELEASES)
   return {
     generated: now.toISOString(),
     finished: {
@@ -300,7 +322,10 @@ export function report(dg: Digest, now = new Date()): Stats {
     recent: [...list].sort((a, b) => b.start.localeCompare(a.start)).slice(0, RECENT).map(g => ({ start: g.start, boards: g.boards, round: g.round, app: g.app, score: g.final ?? g.score, finished: g.final !== null })),
     rolling: rolling([...finished].sort((a, b) => a.start.localeCompare(b.start))),
     releases: releases(list),
-    cards: [...cards.values()].sort((a, b) => b.unsure + b.corrected - (a.unsure + a.corrected) || b.shown - a.shown),
+    cards: byCard(dayCards),
+    cardReleases: cardVersions.map(({ version, first }) => ({
+      version, first, boards: dg.days.reduce((n, d) => n + (d.cardBoards?.[version] ?? 0), 0), cards: byCard(dayCards.filter(c => c.version === version)),
+    })),
   }
 }
 
