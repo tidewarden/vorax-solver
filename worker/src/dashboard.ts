@@ -166,7 +166,7 @@ export const DASHBOARD_HTML = `<!doctype html>
       </section>
       <section class="card">
         <h2>Cards read unsure</h2>
-        <p class="sub">Each card on the boards shared from Oct 26, for one release at a time (the newest first, as each one reads cards better than the last): how many it was offered on, how many the reader wasn't sure of it on, and how many a player corrected a slot to it (it was misread as something else). The most unsure and corrected first: the cards to get more pictures of. A board is shared again on a reroll or a recheck, so a hand can count more than once.</p>
+        <p class="sub">Each potion and instrument card (not the round 11–13 Surgical Protocols) on the boards shared from Oct 26, for one release at a time (the newest first, as each one reads cards better than the last): how many it was offered on, how many the reader wasn't sure of it on, and how many a player corrected a slot to it (it was misread as something else). The most unsure and corrected first: the cards to get more pictures of. A board is shared again on a reroll or a recheck, so a hand can count more than once.</p>
         <div class="tabs" id="card-tabs" role="group" aria-label="Release"></div>
         <p class="tab-note" id="card-note"></p>
         <div class="scroll" id="cards"></div>

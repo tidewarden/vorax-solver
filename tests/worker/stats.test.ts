@@ -371,6 +371,11 @@ describe('cards read unsure', () => {
     // all releases together, as before
     expect(summarize(newer).cards.find(c => c.name === 'Xeno-Hormone')).toEqual({ name: 'Xeno-Hormone', shown: 3, unsure: 1, corrected: 0 })
   })
+  it('leaves the Surgical Protocols out', () => {
+    const s = summarize([...rows, row('2026-10-27T11:00:00Z', 'b', board('r2', 13, { phase: 'protocol', cards: ['Aseptic Isolation Protocol'], unsureCards: ['Aseptic Isolation Protocol'], correctedCards: [] }))])
+    expect(s.cards).toEqual(summarize(rows).cards)
+    expect(s.cardReleases![0].cards).toEqual(summarize(rows).cards)
+  })
   it('days counted before the split by release still count in all releases', () => {
     const old = digest(rows)
     for (const d of old.days) {

@@ -2,6 +2,7 @@
 // (a salted hash of the address that changes every day) is used to count players per day and never sent.
 
 import { finalScore } from '../../src/engine/final'
+import { PROTOCOLS } from '../../src/data/protocols'
 
 export interface StatRow { received: string; client: string; body: string }
 
@@ -67,7 +68,7 @@ export interface Stats {
    *  when its first game started; margin: the average's 95% margin; boards, unsure, corrected: its games' boards and
    *  how many were read with something unsure or corrected (from Oct 25) */
   releases: { version: string; first: string; finished: number; average: number; margin: number; reached: number; boards: number; unsure: number; corrected: number }[]
-  /** each card on boards from Oct 26: the boards it was offered on, read unsure on and corrected to by hand (the
+  /** each card on boards from Oct 26 but the Surgical Protocols: the boards it was offered on, read unsure on and corrected to by hand (the
    *  card it really was), the most unsure first */
   cards: CardCount[]
   /** the same per release, newest first (CARD_RELEASES of them): first, when its first game started; boards, its
@@ -286,7 +287,9 @@ export function report(dg: Digest, now = new Date()): Stats {
     }
     return [...m.values()].sort((a, b) => b.unsure + b.corrected - (a.unsure + a.corrected) || b.shown - a.shown)
   }
-  const dayCards = dg.days.flatMap(d => d.cards ?? [])
+  // not the Surgical Protocols (rounds 11–13): the simulator doesn't play them, so how well they're read matters less
+  const protocols = new Set<string>(PROTOCOLS)
+  const dayCards = dg.days.flatMap(d => d.cards ?? []).filter(c => !protocols.has(c.name))
   // a release starts with its first game, played or not (a version's boards all belong to its games)
   const firsts = new Map<string, string>()
   for (const g of dg.games) if (!firsts.has(g.version) || g.start < firsts.get(g.version)!) firsts.set(g.version, g.start)
