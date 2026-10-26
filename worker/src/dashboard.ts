@@ -1,5 +1,5 @@
 // The private analytics page (/dashboard). It holds no data: it asks for the dashboard password once per
-// browser, then reads /v1/stats with it, the simulated results per day from the public repo, and the automated
+// browser, then reads /v1/stats with it, the smarter player's runs from the repo, and the automated
 // loops' runs from GitHub's public API. The collector keeps more than is shown here (latest games, problems by
 // setup, site versions; data/live/rules-check.json in the repo): /v1/stats still returns it.
 // Design: a neutral palette that follows the system's light or dark mode, one accent colour, red and green
@@ -86,11 +86,6 @@ export const DASHBOARD_HTML = `<!doctype html>
   svg .goal { stroke: var(--ok); stroke-dasharray: 4 4; }
   svg .goal-text { fill: var(--ok); font-weight: 600; }
 
-  .hbar { display: flex; align-items: center; gap: 10px; }
-  .hbar i { display: block; height: 8px; border-radius: 4px; background: var(--accent); min-width: 2px; }
-  .stat { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0 0 14px; }
-  .stat div span { display: block; color: var(--muted); font-size: 12px; }
-  .stat div b { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
 
   .meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 18px 24px; margin-bottom: 14px; }
   .meter-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; color: var(--muted); font-size: 12.5px; }
@@ -136,21 +131,11 @@ export const DASHBOARD_HTML = `<!doctype html>
         <p class="sub">The repo's loops: on GitHub, and the nightly jobs on the PC. Late: a loop hasn't run in 2.5 times its interval.</p>
         <div class="scroll" id="health"><p class="sub">Reading GitHub…</p></div>
       </section>
-      <section class="card" id="usage-card" hidden>
-        <h2>Free plan usage</h2>
-        <p class="sub" id="usage-sub"></p>
-        <div id="usage"></div>
-      </section>
       <section class="card">
         <h2>Since each release</h2>
         <p class="sub">The average final score of the last 100 finished games, every few games: a release that breaks something shows as a drop after its line. 100 games say it within about ±60k, so small changes hide in the noise; the table below has each release's own games and margin. Read unsure and corrected count boards from Oct 25. The dashed line is 840k.</p>
         <div id="rolling"></div>
         <div class="scroll" id="releases"></div>
-      </section>
-      <section class="card">
-        <h2>Cards read unsure</h2>
-        <p class="sub">Each card on the boards shared from Oct 26: how many it was offered on, how many the reader wasn't sure of it on, and how many a player corrected a slot to it (it was misread as something else). The most unsure and corrected first: the cards to get more pictures of. A board is shared again on a reroll or a recheck, so a hand can count more than once.</p>
-        <div class="scroll" id="cards"></div>
       </section>
       <section class="card half">
         <h2>Games and players per day</h2>
@@ -163,23 +148,20 @@ export const DASHBOARD_HTML = `<!doctype html>
         <p class="sub">Games that finished that day (reached the round-13 Surgical Protocol), with round 13's last instrument effects. The median, so a few huge games don't pull it up. The dashed line is 840k: rainbow with the battle bonus.</p>
         <div id="scores"></div>
       </section>
-      <section class="card half">
-        <h2>Real results</h2>
-        <p class="sub">How finished games ended, and whether the advice's predictions hold up.</p>
-        <div id="real"></div>
-      </section>
-      <section class="card half">
-        <h2>Simulated results per day</h2>
-        <p class="sub">The advice as shipped, on the same 240 simulated games each time (the daily check, when the odds change).</p>
-        <div class="scroll" id="history"></div>
+      <section class="card">
         <h2>Smarter player</h2>
         <p class="sub">Each run trains a challenger and plays it against the current player on 240 games that are the same every run. It ships only if it clearly wins.</p>
         <div class="scroll" id="smarter"></div>
       </section>
-      <section class="card half">
-        <h2>How far games got</h2>
-        <p class="sub">Games by the highest round read for sure. Round not read: the reader couldn’t read the round on any of the game’s boards.</p>
-        <div id="rounds"></div>
+      <section class="card" id="usage-card" hidden>
+        <h2>Free plan usage</h2>
+        <p class="sub" id="usage-sub"></p>
+        <div id="usage"></div>
+      </section>
+      <section class="card">
+        <h2>Cards read unsure</h2>
+        <p class="sub">Each card on the boards shared from Oct 26: how many it was offered on, how many the reader wasn't sure of it on, and how many a player corrected a slot to it (it was misread as something else). The most unsure and corrected first: the cards to get more pictures of. A board is shared again on a reroll or a recheck, so a hand can count more than once.</p>
+        <div class="scroll" id="cards"></div>
       </section>
     </div>
   </div>
@@ -430,32 +412,15 @@ async function load(pw) {
   $('days').innerHTML = bars(s.days)
   $('scores').innerHTML = scoreChart(s.days)
   $('rolling').innerHTML = rollingChart(s.rolling, s.releases)
-  $('releases').innerHTML = s.releases && s.releases.length
-    ? table(['Release', 'First game (UTC)', 'Finished', 'Average', 'Reached 840k', 'Read unsure', 'Corrected'], s.releases.map(r => [
+  // the newest 20 releases, 10 a page
+  if (s.releases && s.releases.length) paged('releases', ['Release', 'First game (UTC)', 'Finished', 'Average', 'Reached 840k', 'Read unsure', 'Corrected'], s.releases.slice(0, 20).map(r => [
         r.version, r.first.replace('T', ' ').slice(0, 16), num(r.finished),
         r.finished ? k(r.average) + (r.finished > 1 ? ' ± ' + k(r.margin) : '') : '–', r.finished ? pct(r.reached) : '–',
         r.boards ? pct(r.unsure / r.boards) : '–', r.boards ? pct(r.corrected / r.boards) : '–',
       ]), [2, 3, 4, 5, 6])
-    : ''
+  else $('releases').innerHTML = ''
   if (s.cards && s.cards.length) paged('cards', ['Card', 'Offered', 'Unsure', 'Share unsure', 'Corrected to it'], s.cards.map(c => [c.name, num(c.shown), num(c.unsure), c.shown ? pct(c.unsure / c.shown) : '–', num(c.corrected)]), [1, 2, 3, 4])
   else $('cards').innerHTML = '<p class="sub">No boards with their cards yet.</p>'
-  $('real').innerHTML = (f.games
-    ? '<div class="stat"><div><span>Finished games</span><b>' + f.games + '</b></div><div><span>Reached 840k</span><b>' + f.reached + ' (' + pct(f.reached / f.games) + ')</b></div><div><span>Median</span><b>' + k(f.median) + '</b></div><div><span>Average counted to 840k</span><b>' + k(f.capped) + '</b></div><div><span>Average, every point</span><b>' + k(f.average) + '</b></div></div><p class="sub">The simulator expects about half of games to reach 840k.</p>'
-    : '<p class="sub">No finished games shared yet.</p>')
-    + (s.calibration.length
-      ? '<div class="scroll">' + table(['Advice predicted', 'On average', 'Boards', 'Those games reached 840k'], s.calibration.map(c => [c.band, pct(c.predicted), c.games, pct(c.reached / c.games)]), [1, 2, 3]) + '</div>'
-      : '<p class="sub">Predicted against real appears once boards carry the advice shown (from 2026-10-19) and their games finish.</p>')
-  const rounds = Object.entries(s.rounds).sort((a, b) => a[0] - b[0])
-  const most = Math.max(1, ...rounds.map(x => x[1]))
-  paged('rounds', ['Round', 'Games', ''], rounds.map(([r, n]) => [r === '0' ? 'Round not read' : r, n, { html: '<div class="hbar"><i style="width:' + Math.round((100 * n) / most) + '%"></i></div>' }]), [1])
-  try {
-    // only the simulated results: the odds changes stay in the file
-    const h = (await fromRepo('history')).filter(e => e.reached !== undefined).reverse()
-    if (h.length) paged('history', ['Date', 'What', 'Reached 840k', 'Average', 'Median'], h.map(e => [e.date, e.change, pct(e.reached), e.average ? k(e.average) : '–', e.median ? k(e.median) : '–']), [2, 3, 4])
-    else $('history').innerHTML = '<p class="sub">No simulated results yet.</p>'
-  } catch (e) {
-    $('history').innerHTML = '<p class="sub">The simulated results couldn’t be read from the repo.</p>'
-  }
   try {
     const h = (await fromRepo('smarter')).filter(e => e.fixed).reverse()
     // reached 840k on the fixed games: "166 (69%)"
