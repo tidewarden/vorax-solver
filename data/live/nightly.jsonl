@@ -17,3 +17,6 @@
 {"job": "live-data", "started": "2026-10-28T08:00:04Z", "minutes": 2, "result": "success", "note": "175 new named icons in data/live/icons.jsonl"}
 {"job": "daily-check", "started": "2026-10-28T08:01:05Z", "minutes": 0, "result": "skipped", "note": "the odds didn't change"}
 {"job": "smarter-player", "started": "2026-10-28T08:01:06Z", "minutes": 13, "result": "success", "note": "the challenger didn't pass the gate"}
+{"job": "live-data", "started": "2026-10-29T08:00:04Z", "minutes": 2, "result": "success", "note": "96 new named icons in data/live/icons.jsonl"}
+{"job": "daily-check", "started": "2026-10-29T08:01:08Z", "minutes": 0, "result": "skipped", "note": "the odds didn't change"}
+{"job": "smarter-player", "started": "2026-10-29T08:01:09Z", "minutes": 13, "result": "success", "note": "the challenger didn't pass the gate"}
