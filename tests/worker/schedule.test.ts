@@ -8,7 +8,7 @@ describe('the collector starts the repo’s loops on time (GitHub’s own schedu
   const fetch = vi.fn(async (url: string, init: RequestInit) => (calls.push({ url, init }), new Response(null, { status: 204 })))
   beforeEach(() => (calls.length = 0))
 
-  it('the issue fixer nightly and the dashboard’s numbers every 2 hours: the other loops run on the PC (scripts/nightly.sh)', () => {
+  it('the issue fixer nightly and the dashboard’s numbers every 2 hours: the PC’s nightly jobs stopped on 2026-10-29', () => {
     expect(SCHEDULE).toEqual({ '33 4 * * *': ['issue-fixer.yml'], '17 */2 * * *': ['dashboard.yml'] })
   })
   it('every cron the schedule uses is one Cloudflare fires (wrangler.jsonc)', async () => {

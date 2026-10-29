@@ -3,8 +3,8 @@
 // a workflow on main, with GITHUB_DISPATCH_TOKEN. The workflows keep their own schedules as a backup.
 // The code is in a private repo (since 2026-10-22), so the dashboard's reads go through here too, with the same
 // token: a fine-grained token for that repo only, with Actions: read and write and Contents: read.
-// The live data, the daily check and the smarter player run on the owner's PC (scripts/nightly.sh), not here; only
-// the dashboard's numbers are worked out here every 2 hours (dashboard.yml), between the nightly runs.
+// The live data, the daily check and the smarter player ran on the owner's PC (scripts/nightly.sh) until they
+// stopped on 2026-10-29; only the dashboard's numbers are worked out here every 2 hours (dashboard.yml).
 
 const REPO = 'tidewarden/vorax-solver'
 

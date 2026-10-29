@@ -285,13 +285,10 @@ function rollingChart(points, releases) {
   return s + '</svg>'
 }
 
-// The repo's automated loops. On GitHub: its list of workflow runs. On the PC (scripts/nightly.sh, started by hand
-// after the evening reminder): the outcomes it adds to data/live/nightly.jsonl.
+// The repo's automated loops on GitHub: its list of workflow runs. The nightly jobs on the PC (live data, the daily
+// check, the smarter player) stopped on 2026-10-29: the board value was trained enough.
 // every: how often it should run, in hours (null: only when something triggers it); late after 2.5x that.
 const LOOPS = [
-  { job: 'live-data', name: 'Odds from live data', every: 24 },
-  { job: 'daily-check', name: 'Daily check (simulation)', every: 24 },
-  { job: 'smarter-player', name: 'Smarter player (nightly learning)', every: 24 },
   { file: 'dashboard.yml', name: 'Dashboard numbers', every: 2 },
   { file: 'issue-fixer.yml', name: 'Issue fixer', every: 24 },
   { file: 'deploy.yml', name: 'Website deploy', every: null },
@@ -303,22 +300,9 @@ const ago = t => {
   return m < 60 ? m + ' min ago' : m < 48 * 60 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' days ago'
 }
 async function health() {
-  const nightly = fromRepo('nightly').catch(() => null)
   const rows = await Promise.all(LOOPS.map(async l => {
-    const every = { html: '<span class="sub">' + (l.job ? 'nightly, on the PC' : l.every ? 'every ' + (l.every === 1 ? 'hour' : l.every < 24 ? l.every + ' hours' : 'day') : 'when needed') + '</span>' }
+    const every = { html: '<span class="sub">' + (l.every ? 'every ' + (l.every === 1 ? 'hour' : l.every < 24 ? l.every + ' hours' : 'day') : 'when needed') + '</span>' }
     const late = t => l.every && Date.now() - new Date(t) > l.every * 2.5 * 3600000
-    if (l.job) {
-      const all = await nightly
-      if (!all) return [l.name, { html: pill('idle', 'Unknown') }, { html: '<span class="sub">The repo couldn’t be read</span>' }, '', every, runButton(l)]
-      const runs = all.filter(x => x.job === l.job).reverse()
-      const last = runs[0], good = runs.find(x => x.result !== 'failure')
-      let state = pill('ok', 'Healthy')
-      if (!last) state = pill('idle', 'Not run yet')
-      else if (last.result === 'failure') state = pill('bad', 'Failing')
-      else if (late(last.started)) state = pill('warn', 'Late')
-      const lastCell = last ? ago(last.started) + ' <span class="sub">· ' + esc(last.result) + (last.note ? ': ' + esc(last.note) : '') + ' · ' + last.minutes + ' min</span>' : '<span class="sub">–</span>'
-      return [l.name, { html: state }, { html: lastCell }, good ? ago(good.started) : '–', every, runButton(l)]
-    }
     try {
       const r = await fetch('/v1/runs/' + l.file, { headers: { authorization: 'Bearer ' + password }, cache: 'no-store' })
       if (!r.ok) throw new Error(r.status)
@@ -337,7 +321,7 @@ async function health() {
   }))
   $('health').innerHTML = table(['Loop', 'Status', 'Last run', 'Last success', 'Runs', ''], rows)
 }
-const runButton = l => ({ html: l.job ? '<span class="sub">bash scripts/nightly.sh</span>' : l.noRun ? '<span class="sub">needs a version tag</span>' : '<button type="button" class="run" data-run="' + l.file + '">Run now</button>' })
+const runButton = l => ({ html: l.noRun ? '<span class="sub">needs a version tag</span>' : '<button type="button" class="run" data-run="' + l.file + '">Run now</button>' })
 // Run now: the collector asks GitHub to start the workflow; the table refreshes once GitHub lists it
 document.addEventListener('click', async e => {
   const b = e.target.closest && e.target.closest('button[data-run]')
