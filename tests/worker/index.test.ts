@@ -288,8 +288,16 @@ describe('training data endpoints', () => {
   it('want nothing without a token: the feature is off until TRAINING_TOKEN is set', async () => {
     expect(await (await handle(ask({ phase: 'instrument', name: 'Egg-Burdened Butterfly' }), env, memory())).json()).toEqual({ want: false })
   })
-  it('with one, want a card not yet filed, and refuse anything that isn’t a card', async () => {
-    const withToken = { ...env, TRAINING_TOKEN: 't' }
+  it('want nothing, and file nothing, while the flag is off (wrangler.jsonc ships it off)', async () => {
+    const off = { ...env, TRAINING_TOKEN: 't', TRAINING_UPLOADS: 'off' }
+    expect(await (await handle(ask({ phase: 'instrument', name: 'Egg-Burdened Butterfly' }), off, memory())).json()).toEqual({ want: false })
+    const shot = new Request('https://w.dev/v1/training', { method: 'POST', body: '{}', headers: { 'cf-connecting-ip': '9.9.9.9' } })
+    expect(await (await handle(shot, off, memory())).json()).toEqual({ want: false })
+    const { readFileSync } = await import('node:fs')
+    expect(JSON.parse(readFileSync('worker/wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '')).vars.TRAINING_UPLOADS).toBe('off')
+  })
+  it('with one and the flag on, want a card not yet filed, and refuse anything that isn’t a card', async () => {
+    const withToken = { ...env, TRAINING_TOKEN: 't', TRAINING_UPLOADS: 'on' }
     expect(await (await handle(ask({ phase: 'instrument', name: 'Egg-Burdened Butterfly' }), withToken, memory())).json()).toEqual({ want: true })
     expect((await handle(ask({ phase: 'instrument', name: 'Not A Card' }), withToken, memory())).status).toBe(400)
     const big = new Request('https://w.dev/v1/training/ask', { method: 'POST', body: 'x'.repeat(3000), headers: { 'cf-connecting-ip': '9.9.9.9' } })

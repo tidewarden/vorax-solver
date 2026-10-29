@@ -45,6 +45,8 @@ export interface Env {
   IP_SALT: string
   /** opens the training-data issues and commits their screenshots in the private repo (src/training.ts) */
   TRAINING_TOKEN?: string
+  /** "on" to take training data; anything else wants no card (wrangler.jsonc "vars"; off since 2026-10-29) */
+  TRAINING_UPLOADS?: string
   LIMIT: { limit(o: { key: string }): Promise<{ success: boolean }> }
   DB?: D1Like
 }
@@ -135,7 +137,7 @@ export async function handle(req: Request, env: Env, store: Store): Promise<Resp
     const day = new Date().toISOString().slice(0, 10)
     const client = (await sha256(`${env.IP_SALT}|${day}|${ip}`)).slice(0, 24)
     if (!(await env.LIMIT.limit({ key: client })).success) return json({ error: 'slow down' }, 429, cors)
-    if (!env.TRAINING_TOKEN) return json({ want: false }, 200, cors)
+    if (!env.TRAINING_TOKEN || env.TRAINING_UPLOADS !== 'on') return json({ want: false }, 200, cors)
     const ask = url.pathname === '/v1/training/ask'
     const text = await req.text()
     if (text.length > (ask ? MAX_ASK : MAX_PICTURE + 4_000)) return json({ error: 'too large' }, 413, cors)
