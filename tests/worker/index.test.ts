@@ -305,11 +305,11 @@ describe('training data endpoints', () => {
   })
 })
 
-describe('collection off (wrangler.jsonc ships COLLECTING off)', () => {
+describe('collection off (wrangler.jsonc ships COLLECTING on)', () => {
   const off = { ...env, COLLECTING: 'off' }
-  it('is off in the config', async () => {
+  it('is on in the config: the dashboard needs the boards', async () => {
     const { readFileSync } = await import('node:fs')
-    expect(JSON.parse(readFileSync('worker/wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '')).vars.COLLECTING).toBe('off')
+    expect(JSON.parse(readFileSync('worker/wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '')).vars.COLLECTING).toBe('on')
   })
   it('keeps no boards, icons or cards, but answers them as stored so the Solver doesn’t send them again', async () => {
     const store = memory()

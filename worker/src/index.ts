@@ -46,7 +46,7 @@ export interface Env {
   /** opens the training-data issues and commits their screenshots in the private repo (src/training.ts) */
   TRAINING_TOKEN?: string
   /** "on" to keep the boards, named icons and unnamed cards the Solver sends; anything else answers them as stored
-   * but keeps none (players are still counted, for the dashboard). wrangler.jsonc "vars"; off since 2026-10-29 */
+   * but keeps none (players are still counted, for the dashboard). wrangler.jsonc "vars" */
   COLLECTING?: string
   /** "on" to take training data; anything else wants no card (wrangler.jsonc "vars"; off since 2026-10-29) */
   TRAINING_UPLOADS?: string
