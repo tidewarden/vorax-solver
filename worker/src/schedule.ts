@@ -3,19 +3,19 @@
 // a workflow on main, with GITHUB_DISPATCH_TOKEN. The workflows keep their own schedules as a backup.
 // The code is in a private repo (since 2026-10-22), so the dashboard's reads go through here too, with the same
 // token: a fine-grained token for that repo only, with Actions: read and write and Contents: read.
-// The live data, the daily check and the smarter player ran on the owner's PC (scripts/nightly.sh) until they
-// stopped on 2026-10-29; only the dashboard's numbers are worked out here every 2 hours (dashboard.yml).
+// The live data ran on the owner's PC (scripts/nightly.sh) until 2026-10-29, with the daily check and the smarter
+// player, which stopped then; now it runs nightly here (live-data.yml), and the dashboard's numbers every 2 hours.
 
 const REPO = 'tidewarden/vorax-solver'
 
 /** The workflows each cron trigger starts. */
 export const SCHEDULE: Record<string, string[]> = {
-  '33 4 * * *': ['issue-fixer.yml'],
+  '33 4 * * *': ['issue-fixer.yml', 'live-data.yml'],
   '17 */2 * * *': ['dashboard.yml'],
 }
 
 /** The workflows the dashboard's Run now may start (not the app release: that needs its version tag). */
-export const RUNNABLE = new Set(['issue-fixer.yml', 'dashboard.yml', 'deploy.yml'])
+export const RUNNABLE = new Set(['issue-fixer.yml', 'live-data.yml', 'dashboard.yml', 'deploy.yml'])
 
 /** The workflows whose runs the dashboard lists. */
 export const LISTED = new Set([...RUNNABLE, 'desktop.yml'])

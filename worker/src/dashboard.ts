@@ -134,7 +134,7 @@ export const DASHBOARD_HTML = `<!doctype html>
     <div class="grid">
       <section class="card">
         <h2>Automation health</h2>
-        <p class="sub">The repo's loops: on GitHub, and the nightly jobs on the PC. Late: a loop hasn't run in 2.5 times its interval.</p>
+        <p class="sub">The repo's loops, on GitHub. Late: a loop hasn't run in 2.5 times its interval.</p>
         <div class="scroll" id="health"><p class="sub">Reading GitHub…</p></div>
       </section>
       <section class="card">
@@ -285,10 +285,11 @@ function rollingChart(points, releases) {
   return s + '</svg>'
 }
 
-// The repo's automated loops on GitHub: its list of workflow runs. The nightly jobs on the PC (live data, the daily
-// check, the smarter player) stopped on 2026-10-29: the board value was trained enough.
+// The repo's automated loops on GitHub: its list of workflow runs. Nothing runs on the PC since 2026-10-29 (the
+// smarter player's training and the daily check stopped then; the live data moved here).
 // every: how often it should run, in hours (null: only when something triggers it); late after 2.5x that.
 const LOOPS = [
+  { file: 'live-data.yml', name: 'Live data (boards and icons)', every: 24 },
   { file: 'dashboard.yml', name: 'Dashboard numbers', every: 2 },
   { file: 'issue-fixer.yml', name: 'Issue fixer', every: 24 },
   { file: 'deploy.yml', name: 'Website deploy', every: null },

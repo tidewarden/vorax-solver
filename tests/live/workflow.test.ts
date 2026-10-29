@@ -1,12 +1,46 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 
-// The nightly jobs on the PC (scripts/nightly.sh) stopped on 2026-10-29; GitHub keeps the loops below
+// Nothing runs on the PC since 2026-10-29: the smarter player's training and the daily check stopped, and the live
+// data moved from scripts/nightly.sh to GitHub (live-data.yml)
+const live = readFileSync('.github/workflows/live-data.yml', 'utf8')
+const runs = live.split('\n').filter(l => /^\s*(- )?run: /.test(l)).map(l => l.replace(/^\s*(- )?run: /, ''))
+const step = (name: string) => live.slice(live.indexOf(`- name: ${name}`), live.indexOf('\n      - ', live.indexOf(`- name: ${name}`) + 1))
+
+it('the live data pulls, adds to the digest, sends the summary, learns icons, tests, commits, then empties the collector’s uploads', () => {
+  const order = ['scripts/live/pull.ts', 'scripts/live/digest.ts', 'scripts/live/summary.ts', 'scripts/live/learnIcons.ts', 'npm test', 'git push', '/v1/export/rotate']
+  let at = -1
+  for (const s of order) {
+    const i = live.indexOf(s)
+    expect(i, s).toBeGreaterThan(at)
+    at = i
+  }
+})
+
+it('commits only the data and the learned icons, rebasing onto main first, and never the odds', () => {
+  expect(live).toContain('git add data/live src/solver/scan/learnedIcons.json')
+  expect(live).toContain('git pull -q --rebase && git push -q')
+  expect(live).not.toMatch(/weights\.ts|checkRules\.ts|valueFit|gh pr create/)
+})
+
+it('empties the collector only after a push, and redeploys the site only when the reader learned icons', () => {
+  expect(step('Empty the collector')).toContain("if: steps.push.outputs.pushed == '1'")
+  expect(step('Redeploy the site')).toContain("if: steps.push.outputs.src == '1'")
+  expect(step('Redeploy the site')).toContain('gh workflow run deploy.yml')
+})
+
+it('keeps the collector’s token out of the tests', () => {
+  const test = live.slice(live.indexOf('- run: npm test') - 200, live.indexOf('- run: npm test'))
+  expect(test).not.toContain('LIVE_DATA_TOKEN')
+  expect(live.match(/^ {4}env:\n {6}LIVE_DATA_URL/m)).not.toBeNull()
+  expect(runs).toContain('npm test')
+})
+
 it('pulls the named panel icons too', () => {
   expect(readFileSync('scripts/live/pull.ts', 'utf8')).toContain('pullIcons(')
 })
 
-it('the moved jobs are gone from GitHub Actions, and the collector no longer starts them', () => {
-  expect(readdirSync('.github/workflows').sort()).toEqual(['dashboard.yml', 'deploy.yml', 'desktop.yml', 'issue-fixer.yml'])
+it('GitHub runs these loops, and no training', () => {
+  expect(readdirSync('.github/workflows').sort()).toEqual(['dashboard.yml', 'deploy.yml', 'desktop.yml', 'issue-fixer.yml', 'live-data.yml'])
 })
 
 it('every 2 hours on GitHub, the dashboard gets its numbers from the new boards, and nothing is committed', () => {
@@ -18,6 +52,6 @@ it('every 2 hours on GitHub, the dashboard gets its numbers from the new boards,
   expect(w).not.toMatch(/git (commit|push)|weights\.ts|npm test/)
 })
 
-it('the nightly jobs on the PC are gone for good: no script to run, nothing to schedule it', () => {
+it('nothing runs on the PC: no nightly script, nothing to schedule it', () => {
   for (const f of ['scripts/nightly.sh', 'scripts/local/schedule.ps1', 'scripts/local/toast.ps1']) expect(existsSync(f), f).toBe(false)
 })

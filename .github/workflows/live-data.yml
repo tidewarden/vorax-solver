@@ -1,0 +1,94 @@
+# Every night: pulls the boards and named icons the Solver shared from the collector (worker/), adds the boards to
+# the dashboard's digest (data/live/digest) and sends the dashboard its numbers, teaches the reader the named icons,
+# runs the tests, commits and pushes, then empties the collector's uploads up to what it pulled (its database would
+# otherwise fill up in a few days). It ran on the PC (scripts/nightly.sh) until 2026-10-29, when the smarter
+# player's training and the daily check stopped; the repo is public, so its Actions minutes are free.
+# Started by the collector's cron trigger (worker/src/schedule.ts), with the schedule here as a backup. Or on demand:
+# gh workflow run live-data.yml
+# Needs the repo variable LIVE_DATA_URL and the secret LIVE_DATA_TOKEN (the collector's EXPORT_TOKEN), as
+# dashboard.yml does. The raw boards aren't kept: the digest holds what the dashboard needs of them.
+name: Live data
+
+on:
+  schedule:
+    - cron: '33 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  # to start deploy.yml: a push with this workflow's token starts no other workflow
+  actions: write
+
+concurrency:
+  group: live-data
+  cancel-in-progress: false
+
+jobs:
+  live:
+    if: ${{ vars.LIVE_DATA_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LIVE_DATA_URL: ${{ vars.LIVE_DATA_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+
+      - name: Pull the boards, icons and cards shared since the last run
+        env:
+          LIVE_DATA_TOKEN: ${{ secrets.LIVE_DATA_TOKEN }}
+        run: npx vite-node scripts/live/pull.ts | tee pull.txt
+
+      - name: Add the boards to the digest
+        run: npx vite-node scripts/live/digest.ts | tee digest.txt
+
+      - name: Send the dashboard its numbers
+        continue-on-error: true
+        env:
+          LIVE_DATA_TOKEN: ${{ secrets.LIVE_DATA_TOKEN }}
+          CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_BILLING_TOKEN: ${{ secrets.GH_BILLING_TOKEN }}
+        run: npx vite-node scripts/live/summary.ts
+
+      - name: List the cards the Solver couldn't name
+        run: npx vite-node scripts/live/newCards.ts
+
+      - name: Teach the reader the named icons
+        run: npx vite-node scripts/live/learnIcons.ts | tee icons.txt
+
+      # no secrets in the tests' environment
+      - run: npm test
+
+      - name: Commit and push
+        id: push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/live src/solver/scan/learnedIcons.json
+          if git diff --cached --quiet; then echo "Nothing new."; exit 0; fi
+          git diff --cached --quiet -- src || echo "src=1" >> "$GITHUB_OUTPUT"
+          { echo "Live data: $(head -1 pull.txt)"; echo; cat digest.txt; grep -v '^No learned icons' icons.txt || true; } > message.txt
+          git commit -q -F message.txt
+          # on top of anything pushed meanwhile
+          git pull -q --rebase && git push -q
+          echo "pushed=1" >> "$GITHUB_OUTPUT"
+
+      # once what was pulled is in git (its place in the export too: data/live/state.json), the collector's uploads up to it go
+      - name: Empty the collector's uploads up to what was pulled
+        if: steps.push.outputs.pushed == '1'
+        env:
+          LIVE_DATA_TOKEN: ${{ secrets.LIVE_DATA_TOKEN }}
+        run: |
+          upto=$(python3 -c "import json; print(json.load(open('data/live/state.json')).get('last', 0))")
+          [ "$upto" -gt 1000000000 ] && curl -sf -X POST -H "authorization: Bearer $LIVE_DATA_TOKEN" "$LIVE_DATA_URL/v1/export/rotate?upto=$upto"
+
+      - name: Redeploy the site when the reader learned icons
+        if: steps.push.outputs.src == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main

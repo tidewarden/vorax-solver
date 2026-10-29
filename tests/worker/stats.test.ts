@@ -141,7 +141,7 @@ describe('the dashboard routes', () => {
     expect(html).toMatch(/password/i)
     expect(html).not.toMatch(/open-sesame/)
     // the automated loops' health: GitHub's run lists, read through the collector; the PC's nightly jobs stopped
-    for (const f of ['issue-fixer.yml', 'deploy.yml', 'desktop.yml', "/v1/repo/", "/v1/runs/"]) expect(html).toContain(f)
+    for (const f of ['live-data.yml', 'issue-fixer.yml', 'deploy.yml', 'desktop.yml', "/v1/repo/", "/v1/runs/"]) expect(html).toContain(f)
     for (const f of ["job: 'live-data'", "job: 'daily-check'", "job: 'smarter-player'"]) expect(html).not.toContain(f)
     // nothing read from GitHub straight from the browser: the repo is private
     expect(html).not.toMatch(/raw\.githubusercontent|api\.github\.com/)

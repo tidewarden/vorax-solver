@@ -8,8 +8,8 @@ describe('the collector starts the repo’s loops on time (GitHub’s own schedu
   const fetch = vi.fn(async (url: string, init: RequestInit) => (calls.push({ url, init }), new Response(null, { status: 204 })))
   beforeEach(() => (calls.length = 0))
 
-  it('the issue fixer nightly and the dashboard’s numbers every 2 hours: the PC’s nightly jobs stopped on 2026-10-29', () => {
-    expect(SCHEDULE).toEqual({ '33 4 * * *': ['issue-fixer.yml'], '17 */2 * * *': ['dashboard.yml'] })
+  it('the issue fixer and the live data nightly, the dashboard’s numbers every 2 hours (nothing runs on the PC since 2026-10-29)', () => {
+    expect(SCHEDULE).toEqual({ '33 4 * * *': ['issue-fixer.yml', 'live-data.yml'], '17 */2 * * *': ['dashboard.yml'] })
   })
   it('every cron the schedule uses is one Cloudflare fires (wrangler.jsonc)', async () => {
     const { readFileSync } = await import('node:fs')
@@ -19,8 +19,7 @@ describe('the collector starts the repo’s loops on time (GitHub’s own schedu
 
   it('asks GitHub to start each workflow due, on main, with the dispatch token', async () => {
     await onSchedule('33 4 * * *', { GITHUB_DISPATCH_TOKEN: 'tok' }, fetch as never)
-    expect(calls).toHaveLength(1)
-    expect(calls[0].url).toBe(`${API}/actions/workflows/issue-fixer.yml/dispatches`)
+    expect(calls.map(c => c.url)).toEqual([`${API}/actions/workflows/issue-fixer.yml/dispatches`, `${API}/actions/workflows/live-data.yml/dispatches`])
     expect(calls[0].init.method).toBe('POST')
     expect(JSON.parse(String(calls[0].init.body))).toEqual({ ref: 'main' })
     expect((calls[0].init.headers as Record<string, string>).authorization).toBe('Bearer tok')
@@ -49,11 +48,11 @@ describe('Run now, from the dashboard', () => {
       fetcher.mockRestore()
     }
   })
-  it('refuses without the password, and any workflow that isn’t a loop (a release needs its tag; the PC’s jobs aren’t GitHub’s)', async () => {
+  it('refuses without the password, and any workflow that isn’t a loop (a release needs its tag)', async () => {
     const { handle } = await import('../../worker/src/index')
     expect((await handle(run('deploy.yml', 'nope'), env, {} as never)).status).toBe(401)
     expect((await handle(run('desktop.yml'), env, {} as never)).status).toBe(404)
-    expect((await handle(run('live-data.yml'), env, {} as never)).status).toBe(404)
+    expect((await handle(run('smarter.yml'), env, {} as never)).status).toBe(404)
   })
   it('says why when GitHub refuses (a missing or wrong token)', async () => {
     const { handle } = await import('../../worker/src/index')
