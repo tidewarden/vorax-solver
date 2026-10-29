@@ -34,7 +34,7 @@ describe('the collector starts the repo’s loops on time (GitHub’s own schedu
 })
 
 describe('Run now, from the dashboard', () => {
-  const env = { EXPORT_TOKEN: 'x', IP_SALT: 's', DASHBOARD_TOKEN: 'pw', GITHUB_DISPATCH_TOKEN: 'tok', LIMIT: { limit: async () => ({ success: true }) } }
+  const env = { EXPORT_TOKEN: 'x', IP_SALT: 's', COLLECTING: 'on', DASHBOARD_TOKEN: 'pw', GITHUB_DISPATCH_TOKEN: 'tok', LIMIT: { limit: async () => ({ success: true }) } }
   const run = (file: string, pw = 'pw') => new Request(`https://w.dev/v1/run/${file}`, { method: 'POST', headers: { authorization: `Bearer ${pw}` } })
 
   it('starts a loop’s workflow, with the dashboard password', async () => {
@@ -69,7 +69,7 @@ describe('Run now, from the dashboard', () => {
 })
 
 describe('the dashboard’s reads of the private repo', () => {
-  const env = { EXPORT_TOKEN: 'x', IP_SALT: 's', DASHBOARD_TOKEN: 'pw', GITHUB_DISPATCH_TOKEN: 'tok', LIMIT: { limit: async () => ({ success: true }) } }
+  const env = { EXPORT_TOKEN: 'x', IP_SALT: 's', COLLECTING: 'on', DASHBOARD_TOKEN: 'pw', GITHUB_DISPATCH_TOKEN: 'tok', LIMIT: { limit: async () => ({ success: true }) } }
   const get = (path: string, pw = 'pw') => new Request(`https://w.dev${path}`, { headers: { authorization: `Bearer ${pw}` } })
 
   it('a named file from main, raw, with the token', async () => {

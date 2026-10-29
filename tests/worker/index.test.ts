@@ -59,7 +59,7 @@ function memory(): Store & { summaries: string[]; batches: { id: number; receive
   }
 }
 
-const env = { EXPORT_TOKEN: 'secret', IP_SALT: 'salt', LIMIT: { limit: async () => ({ success: true }) } }
+const env = { EXPORT_TOKEN: 'secret', IP_SALT: 'salt', COLLECTING: 'on', LIMIT: { limit: async () => ({ success: true }) } }
 const snap = (uid: string) => ({
   uid, run: '5a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d', seq: 0, app: 'abc', source: 'live', trigger: 'board', round: 1, phase: 'potion', refreshes: 3, shelley: 6, corrected: [],
   tanks: [null, null, null, null, null, null], hand: ['Xeno-Hormone'], instruments: [],
@@ -302,5 +302,33 @@ describe('training data endpoints', () => {
     expect((await handle(ask({ phase: 'instrument', name: 'Not A Card' }), withToken, memory())).status).toBe(400)
     const big = new Request('https://w.dev/v1/training/ask', { method: 'POST', body: 'x'.repeat(3000), headers: { 'cf-connecting-ip': '9.9.9.9' } })
     expect((await handle(big, withToken, memory())).status).toBe(413)
+  })
+})
+
+describe('collection off (wrangler.jsonc ships COLLECTING off)', () => {
+  const off = { ...env, COLLECTING: 'off' }
+  it('is off in the config', async () => {
+    const { readFileSync } = await import('node:fs')
+    expect(JSON.parse(readFileSync('worker/wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '')).vars.COLLECTING).toBe('off')
+  })
+  it('keeps no boards, icons or cards, but answers them as stored so the Solver doesn’t send them again', async () => {
+    const store = memory()
+    const res = await handle(post([snap(uid(21))]), off, store)
+    expect(res.status).toBe(200)
+    expect((await res.json()).stored).toBe(1)
+    expect(await (await handle(icon({ uid: uid(22), name: 'Egg-Burdened Butterfly', pattern: pattern() }), off, store)).json()).toEqual({ stored: 1 })
+    expect(await (await handle(card({ uid: uid(23), phase: 'potion', text: 'A card', picture: jpeg }), off, store)).json()).toEqual({ stored: 1 })
+    expect(store.batches).toHaveLength(0)
+    expect(store.icons).toHaveLength(0)
+    expect(store.cards).toHaveLength(0)
+  })
+  it('still counts the day’s players, for the dashboard', async () => {
+    const store = memory()
+    await handle(post([snap(uid(24))]), off, store)
+    expect(store.players.size).toBe(1)
+  })
+  it('still refuses what isn’t from the Solver', async () => {
+    expect((await handle(post([]), off, memory())).status).toBe(400)
+    expect((await handle(icon({ uid: 'x' }), off, memory())).status).toBe(400)
   })
 })

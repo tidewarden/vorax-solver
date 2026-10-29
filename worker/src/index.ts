@@ -45,6 +45,9 @@ export interface Env {
   IP_SALT: string
   /** opens the training-data issues and commits their screenshots in the private repo (src/training.ts) */
   TRAINING_TOKEN?: string
+  /** "on" to keep the boards, named icons and unnamed cards the Solver sends; anything else answers them as stored
+   * but keeps none (players are still counted, for the dashboard). wrangler.jsonc "vars"; off since 2026-10-29 */
+  COLLECTING?: string
   /** "on" to take training data; anything else wants no card (wrangler.jsonc "vars"; off since 2026-10-29) */
   TRAINING_UPLOADS?: string
   LIMIT: { limit(o: { key: string }): Promise<{ success: boolean }> }
@@ -106,7 +109,7 @@ export async function handle(req: Request, env: Env, store: Store): Promise<Resp
     const seen = new Set<unknown>()
     const valid = body.map(s => validate(s, names)).filter((s): s is NonNullable<typeof s> => s !== null && !seen.has(s.uid) && !!seen.add(s.uid))
     if (valid.length) {
-      await store.insertBatch(JSON.stringify(valid.map(lean)))
+      if (env.COLLECTING === 'on') await store.insertBatch(JSON.stringify(valid.map(lean)))
       await store.seePlayer(day, client)
     }
     return json({ stored: valid.length, dropped: body.length - valid.length }, 200, cors)
@@ -127,7 +130,8 @@ export async function handle(req: Request, env: Env, store: Store): Promise<Resp
     }
     const icon = validateIcon(raw, names)
     if (!icon) return json({ error: 'not an icon' }, 400, cors)
-    const stored = await store.insertIcon({ uid: icon.uid as string, client, body: JSON.stringify(icon) })
+    // collection off: answered as stored, so the Solver doesn't send it again
+    const stored = env.COLLECTING === 'on' ? await store.insertIcon({ uid: icon.uid as string, client, body: JSON.stringify(icon) }) : 1
     return json({ stored }, 200, cors)
   }
 
@@ -172,7 +176,7 @@ export async function handle(req: Request, env: Env, store: Store): Promise<Resp
     }
     const card = validateCard(raw)
     if (!card) return json({ error: 'not a card' }, 400, cors)
-    const stored = await store.insertCard({ uid: card.uid as string, client, body: JSON.stringify(card) })
+    const stored = env.COLLECTING === 'on' ? await store.insertCard({ uid: card.uid as string, client, body: JSON.stringify(card) }) : 1
     return json({ stored }, 200, cors)
   }
 

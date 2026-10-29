@@ -18,7 +18,9 @@
   "ratelimits": [{ "name": "LIMIT", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }],
   "observability": { "enabled": true },
   // training data (src/training.ts): "on" to take screenshots of cards the reader is short of; off since 2026-10-29
-  "vars": { "TRAINING_UPLOADS": "off" },
+  // COLLECTING (src/index.ts): "on" to keep the boards, icons and cards the Solver sends; off since 2026-10-29, when
+  // the nightly jobs that pulled and emptied them stopped
+  "vars": { "TRAINING_UPLOADS": "off", "COLLECTING": "off" },
   // the repo's loops, started on time (src/schedule.ts)
   "triggers": { "crons": ["33 4 * * *", "17 */2 * * *"] }
 }

@@ -121,7 +121,7 @@ describe('real results', () => {
 
 describe('the dashboard routes', () => {
   const store = { summary: async () => summarize([row('2026-10-18T10:00:00Z', '', board('g1', 2))]), dayCounts: async () => [{ day: '2026-10-18', players: 1 }] } as unknown as Store
-  const env = { EXPORT_TOKEN: 'x', IP_SALT: 's', DASHBOARD_TOKEN: 'open-sesame', LIMIT: { limit: async () => ({ success: true }) } }
+  const env = { EXPORT_TOKEN: 'x', IP_SALT: 's', COLLECTING: 'on', DASHBOARD_TOKEN: 'open-sesame', LIMIT: { limit: async () => ({ success: true }) } }
   it('the numbers need the dashboard password', async () => {
     expect((await handle(new Request('https://w.dev/v1/stats'), env, store)).status).toBe(401)
     expect((await handle(new Request('https://w.dev/v1/stats', { headers: { authorization: 'Bearer x' } }), env, store)).status).toBe(401)
