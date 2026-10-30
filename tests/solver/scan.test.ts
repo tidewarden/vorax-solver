@@ -67,6 +67,20 @@ describe('committed fixtures (masked live frames)', () => {
     expect(r.state.tanks.map(t => t && [t.activity, t.quantity])).toEqual([[5, 139], [66, 319], [1, 306], [42, 306], [5, 329], [5, 149]])
   })
 
+  it('reads the tanks of a window between the measured shapes: its labels sit lower and further right (2469x1180, 2.09:1)', () => {
+    // the game logged interface scale 1.0444 for this window; every icon read as a sure Agito, and half the tanks as empty
+    const r = scan(decodePng(readFileSync('tests/fixtures/frames/window-2469.png')), data, {}, { ui: 1.0444 })
+    expect(r.state.tanks).toEqual([
+      { archetype: 'pest', rarity: 'magic', activity: 98, quantity: 76 },
+      { archetype: 'aemberon', rarity: 'normal', activity: 1, quantity: 36 },
+      { archetype: 'pest', rarity: 'normal', activity: 1, quantity: 36 },
+      { archetype: 'agito', rarity: 'normal', activity: 243, quantity: 88 },
+      { archetype: 'pest', rarity: 'magic', activity: 36, quantity: 97 },
+      { archetype: 'boneSentry', rarity: 'normal', activity: 1, quantity: 109 },
+    ])
+    expect(Object.entries(r.fields).filter(([k, f]) => k.startsWith('tank') && !f.sure).map(([k]) => k)).toEqual([])
+  })
+
   it('reads the tanks of a small window: faint 7-pixel digits and dim Pest icons (issue #287, 1306x737)', () => {
     const r = read('small-737.png')
     const pest = { archetype: 'pest', rarity: 'normal', activity: 1, quantity: 36 }
