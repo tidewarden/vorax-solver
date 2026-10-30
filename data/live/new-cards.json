@@ -18,6 +18,15 @@
   "picture": "data/live/new-cards/potion-i.jpg"
  },
  {
+  "name": "7",
+  "phase": "potion",
+  "seen": 26,
+  "first": "2026-10-21T13:54:40.750Z",
+  "last": "2026-10-30T04:50:17.342Z",
+  "text": "[7\n 237\n F2 Gen: ParTsite Pupae\n Thechitinous coffin is\nnow sealed. Beneath,\nthat lhardamead any NN,",
+  "picture": "data/live/new-cards/potion-7.jpg"
+ },
+ {
   "name": "fr",
   "phase": "potion",
   "seen": 25,
@@ -27,20 +36,11 @@
   "picture": "data/live/new-cards/potion-fr.jpg"
  },
  {
-  "name": "7",
-  "phase": "potion",
-  "seen": 24,
-  "first": "2026-10-21T13:54:40.750Z",
-  "last": "2026-10-30T01:01:39.818Z",
-  "text": "[7\n 237\n F2 Gen: ParTsite Pupae\n Thechitinous coffin is\nnow sealed. Beneath,\nthat lhardamead any NN,",
-  "picture": "data/live/new-cards/potion-7.jpg"
- },
- {
   "name": "J",
   "phase": "potion",
-  "seen": 22,
+  "seen": 23,
   "first": "2026-10-25T08:59:52.042Z",
-  "last": "2026-10-29T16:20:00.844Z",
+  "last": "2026-10-30T10:33:02.645Z",
   "text": "J\n/ 75s Y\n\\2 :\nCid Bl\nF1 Gen: Parasite E\nA moist, warm orb.  7\n RETO PS PUNE Ta 141.",
   "picture": "data/live/new-cards/potion-j.jpg"
  },
@@ -90,6 +90,15 @@
   "picture": "data/live/new-cards/potion-1.jpg"
  },
  {
+  "name": "Jr",
+  "phase": "potion",
+  "seen": 13,
+  "first": "2026-10-25T19:30:44.804Z",
+  "last": "2026-10-30T10:32:58.878Z",
+  "text": "Jr\n(52\n7,\n; 0 F1G\n-1 Gen: Farasite E\n\\ moist, warm orb. They\nPN EE Teil I. 7 a 1:1,",
+  "picture": "data/live/new-cards/potion-jr.jpg"
+ },
+ {
   "name": "HE",
   "phase": "potion",
   "seen": 12,
@@ -97,15 +106,6 @@
   "last": "2026-10-29T19:12:11.436Z",
   "text": "he \nFourth Ril Holy Water: \nEucharist\nboth the saint and the\nIamh iinean tho nlattar",
   "picture": "data/live/new-cards/potion-he.jpg"
- },
- {
-  "name": "Jr",
-  "phase": "potion",
-  "seen": 12,
-  "first": "2026-10-25T19:30:44.804Z",
-  "last": "2026-10-29T19:11:14.633Z",
-  "text": "Jr\n(52\n7,\n; 0 F1G\n-1 Gen: Farasite E\n\\ moist, warm orb. They\nPN EE Teil I. 7 a 1:1,",
-  "picture": "data/live/new-cards/potion-jr.jpg"
  },
  {
   "name": "LE",
@@ -124,6 +124,15 @@
   "last": "2026-10-29T19:11:12.446Z",
   "text": "fo.)\n/ EN\nF1 GentVaitain Egg\nCluster\nThey cling together like\nCANS Tn Vr pf",
   "picture": "data/live/new-cards/potion-fo.jpg"
+ },
+ {
+  "name": "JL",
+  "phase": "potion",
+  "seen": 10,
+  "first": "2026-10-26T13:06:35.461Z",
+  "last": "2026-10-30T10:33:02.650Z",
+  "text": "JL\n(Gd\nTS  i\nF1 GentVertain Egg\n: Cluster 3\n They cling together i m\nx  EERSTE Ten of VAS",
+  "picture": "data/live/new-cards/potion-jl.jpg"
  },
  {
   "name": "4",
@@ -171,15 +180,6 @@
   "picture": "data/live/new-cards/potion-fn.jpg"
  },
  {
-  "name": "JL",
-  "phase": "potion",
-  "seen": 9,
-  "first": "2026-10-26T13:06:35.461Z",
-  "last": "2026-10-29T11:34:22.889Z",
-  "text": "JL\n(Gd\nTS  i\nF1 GentVertain Egg\n: Cluster 3\n They cling together i m\nx  EERSTE Ten of VAS",
-  "picture": "data/live/new-cards/potion-jl.jpg"
- },
- {
   "name": "en",
   "phase": "potion",
   "seen": 8,
@@ -187,6 +187,15 @@
   "last": "2026-10-28T10:13:51.317Z",
   "text": "[EN\nWEA\nFourth-Rite Holy\nWater: Eucharist,\nIn this feast, youay\nTumble blam mmol mand a nn ,",
   "picture": "data/live/new-cards/potion-en.jpg"
+ },
+ {
+  "name": "S",
+  "phase": "potion",
+  "seen": 8,
+  "first": "2026-10-25T21:29:39.773Z",
+  "last": "2026-10-30T10:40:33.062Z",
+  "text": "s : ,\n\nNid ag\n\n] SN.\n\n F2 Gen: Parasite Pupae\n\n Thechitinous coffinis \n\nnow sealed. Beneath \nthat lhardAamaad cla 1s",
+  "picture": "data/live/new-cards/potion-s.jpg"
  },
  {
   "name": "fT",
@@ -297,15 +306,6 @@
   "picture": "data/live/new-cards/potion-ny.jpg"
  },
  {
-  "name": "S",
-  "phase": "potion",
-  "seen": 6,
-  "first": "2026-10-25T21:29:39.773Z",
-  "last": "2026-10-28T17:12:17.683Z",
-  "text": "s : ,\n\nNid ag\n\n] SN.\n\n F2 Gen: Parasite Pupae\n\n Thechitinous coffinis \n\nnow sealed. Beneath \nthat lhardAamaad cla 1s",
-  "picture": "data/live/new-cards/potion-s.jpg"
- },
- {
   "name": "Fl",
   "phase": "potion",
   "seen": 5,
@@ -412,6 +412,15 @@
   "last": "2026-10-28T19:40:26.192Z",
   "text": "Ss\n3)\n Lay)\nac LA\nP:  Gen: Vermin Pup T\nLs. Cluster\nth s cluster of calcif k\nSFR BrSTrErEEEZs",
   "picture": "data/live/new-cards/potion-ss.jpg"
+ },
+ {
+  "name": "i",
+  "phase": "instrument",
+  "seen": 5,
+  "first": "2026-10-28T14:22:31.458Z",
+  "last": "2026-10-30T10:35:14.613Z",
+  "text": "I ]\nTarge(“d Keno-\n Hormone\nSelect 1 group(s)of \nmonsters and remove\nLU dha AdADY armtienlel AF [i",
+  "picture": "data/live/new-cards/instrument-i.jpg"
  },
  {
   "name": "fy",
@@ -819,6 +828,15 @@
   "picture": "data/live/new-cards/potion-fm.jpg"
  },
  {
+  "name": "f",
+  "phase": "instrument",
+  "seen": 3,
+  "first": "2026-10-26T18:29:06.323Z",
+  "last": "2026-10-30T10:35:14.613Z",
+  "text": "(F\n\\la\n ii\nfi Leptoiiciingeal\n: Solution\nve Select 1 group(s) of\n\\ f PR) ond SRE 1 rf",
+  "picture": "data/live/new-cards/instrument-f.jpg"
+ },
+ {
   "name": "NP",
   "phase": "potion",
   "seen": 3,
@@ -891,15 +909,6 @@
   "picture": "data/live/new-cards/potion-lg.jpg"
  },
  {
-  "name": "i",
-  "phase": "instrument",
-  "seen": 3,
-  "first": "2026-10-28T14:22:31.458Z",
-  "last": "2026-10-29T12:40:43.199Z",
-  "text": "i \n\n DigestiveEnzyme\n\n Solution\n Select 1 group(s) of\n\n monsters and +61to \n IRTP Ter",
-  "picture": "data/live/new-cards/instrument-i.jpg"
- },
- {
   "name": "Ned",
   "phase": "potion",
   "seen": 2,
@@ -916,6 +925,15 @@
   "last": "2026-10-25T08:54:29.867Z",
   "text": "Ng\nTargeted von\ny Select 1group(s) o\n{ monsters and remo m",
   "picture": "data/live/new-cards/potion-ng.jpg"
+ },
+ {
+  "name": "BE",
+  "phase": "potion",
+  "seen": 2,
+  "first": "2026-10-21T06:30:58.983Z",
+  "last": "2026-10-30T10:21:26.331Z",
+  "text": "BE\n\nIncub dion Elixir:\nHollow Cocoon\n\n Itpromisesformtot] All\n\nfanrmlace flach a cart * a",
+  "picture": "data/live/new-cards/potion-be.jpg"
  },
  {
   "name": "Potent  Vi",
@@ -1566,6 +1584,15 @@
   "picture": "data/live/new-cards/potion-lar.jpg"
  },
  {
+  "name": "Jad",
+  "phase": "potion",
+  "seen": 2,
+  "first": "2026-10-26T16:55:57.955Z",
+  "last": "2026-10-30T10:32:46.110Z",
+  "text": "Jad\nIncubation Elixir:\n\\ Hollow Cocoon\nIt promises form to the\nformless flesh, a secret\n[JETT bk",
+  "picture": "data/live/new-cards/potion-jad.jpg"
+ },
+ {
   "name": "i Ea",
   "phase": "potion",
   "seen": 2,
@@ -1573,15 +1600,6 @@
   "last": "2026-10-27T08:03:17.273Z",
   "text": "i Ea  \n!  j\nSE",
   "picture": "data/live/new-cards/potion-i-ea.jpg"
- },
- {
-  "name": "f",
-  "phase": "instrument",
-  "seen": 2,
-  "first": "2026-10-26T18:29:06.323Z",
-  "last": "2026-10-27T09:25:33.882Z",
-  "text": "/  f\nB LL -\n« \\\n7 I . - \nINT ATI IN\n- .\nv \\ -\nPVEeS  a\n\\ NOS  \nR Yad &",
-  "picture": "data/live/new-cards/instrument-f.jpg"
  },
  {
   "name": "20",
@@ -2473,15 +2491,6 @@
   "last": "2026-10-21T06:28:05.310Z",
   "text": "iy Ve ‘0\n ANN\n Insect \nAdd 4 group(s) of\n Pests. +10 7 Activity",
   "picture": "data/live/new-cards/potion-iy-ve-0.jpg"
- },
- {
-  "name": "BE",
-  "phase": "potion",
-  "seen": 1,
-  "first": "2026-10-21T06:30:58.983Z",
-  "last": "2026-10-21T06:30:58.983Z",
-  "text": "BE\nTargc (CU Xeno-  Ang\nHormone\nSelect 1 group(s) o Se",
-  "picture": "data/live/new-cards/potion-be.jpg"
  },
  {
   "name": "Folt",
@@ -9241,15 +9250,6 @@
   "last": "2026-10-26T16:41:02.953Z",
   "text": "Leary\nF1 Gentatnin Egg\n\n! Cluster\n\n{ Theyclingtogether like\n\ni malignant grapes\n\n1 TE EO",
   "picture": "data/live/new-cards/potion-leary.jpg"
- },
- {
-  "name": "Jad",
-  "phase": "potion",
-  "seen": 1,
-  "first": "2026-10-26T16:55:57.955Z",
-  "last": "2026-10-26T16:55:57.955Z",
-  "text": "Jad\nIncubation Elixir: \\\nHollow Cocoon \nIt promises form to +:\nFI) MERAY - PT Rial  .X",
-  "picture": "data/live/new-cards/potion-jad.jpg"
  },
  {
   "name": "CLAY",
@@ -17557,5 +17557,185 @@
   "last": "2026-10-30T04:31:08.305Z",
   "text": "\\ 3’ Ze —\nBeak'sl \\. ie\nB\nBorn\nAt the end of the\nround, if there are",
   "picture": "data/live/new-cards/instrument-3-ze.jpg"
+ },
+ {
+  "name": "gd",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T04:50:17.328Z",
+  "last": "2026-10-30T04:50:17.328Z",
+  "text": "gd\np f\n3\nTwi\nSelect 1group(s)ol S\nmMmAanctare rmtitaata th vy",
+  "picture": "data/live/new-cards/potion-gd.jpg"
+ },
+ {
+  "name": "7g",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T06:52:59.183Z",
+  "last": "2026-10-30T06:52:59.183Z",
+  "text": "(7g\nFourth Ri‘ Holy Water:\nEucharist\nIn this feast, you are\nboth the saint and the\nHl amb ninan the nlattar",
+  "picture": "data/live/new-cards/potion-7g.jpg"
+ },
+ {
+  "name": "Ny &SLUI",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T08:04:53.967Z",
+  "last": "2026-10-30T08:04:53.967Z",
+  "text": "Ny &SLUI\n\n— {\n\n —li_",
+  "picture": "data/live/new-cards/potion-ny-slui.jpg"
+ },
+ {
+  "name": "P ad",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T08:04:54.033Z",
+  "last": "2026-10-30T08:04:54.033Z",
+  "text": "P ad \n” \\ \nEH) y",
+  "picture": "data/live/new-cards/potion-p-ad.jpg"
+ },
+ {
+  "name": "LL g j",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T08:13:29.690Z",
+  "last": "2026-10-30T08:13:29.690Z",
+  "text": "LL g j\n 1S\na Ne i\"\na \\» -",
+  "picture": "data/live/new-cards/potion-ll-g-j.jpg"
+ },
+ {
+  "name": "En iho",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T08:13:29.704Z",
+  "last": "2026-10-30T08:13:29.704Z",
+  "text": "En iho",
+  "picture": "data/live/new-cards/potion-en-iho.jpg"
+ },
+ {
+  "name": "IE) J",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:35:08.700Z",
+  "last": "2026-10-30T10:35:08.700Z",
+  "text": "IE) J\nGray Matler Spina\nSolution :\n+41 *F Activity to J] ma\nw— NE WELLS Mc Te JP FY",
+  "picture": "data/live/new-cards/instrument-ie-j.jpg"
+ },
+ {
+  "name": "tr",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:35:08.729Z",
+  "last": "2026-10-30T10:35:08.729Z",
+  "text": "tr\n iz]\nfi Leptomomingeal\n: Solution\nve Helect 1 groups) of\n\\ f CNW CN RAR ol we ge Tp A",
+  "picture": "data/live/new-cards/instrument-tr.jpg"
+ },
+ {
+  "name": "Il eld)",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:25.702Z",
+  "last": "2026-10-30T10:36:25.702Z",
+  "text": "Il eld) \n{ [ales\ncoe Leech \n Solution\n Select lgroup(s)of \n monsters, and +31",
+  "picture": "data/live/new-cards/instrument-il-eld.jpg"
+ },
+ {
+  "name": "i [IN",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:25.688Z",
+  "last": "2026-10-30T10:36:25.688Z",
+  "text": "i [IN\n\n‘win Hormone - Pest S\nSelect 1 group(s) of r\nJ TE SE RN PR LED",
+  "picture": "data/live/new-cards/instrument-i-in.jpg"
+ },
+ {
+  "name": "SETA",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:25.705Z",
+  "last": "2026-10-30T10:36:25.705Z",
+  "text": "SETA\n) / i\nf  Mutagenic Powder\n1  Select 1-2 groups of\nPAY Pi Si EL TE 3. A",
+  "picture": "data/live/new-cards/instrument-seta.jpg"
+ },
+ {
+  "name": "Re?)",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:26.228Z",
+  "last": "2026-10-30T10:36:26.228Z",
+  "text": "Re?)\n Compotid Leech\ni Solution\n Select 1group(s) of\nmonsters, and +31\n gg A ya dE",
+  "picture": "data/live/new-cards/instrument-re.jpg"
+ },
+ {
+  "name": "18% [1",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:32.149Z",
+  "last": "2026-10-30T10:36:32.149Z",
+  "text": "18% [1%\n\nTwin Hormone - Pag S\nSelect 1 groups) [\nBEE aR IE Y",
+  "picture": "data/live/new-cards/instrument-18-1.jpg"
+ },
+ {
+  "name": "I Ls)",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:32.160Z",
+  "last": "2026-10-30T10:36:32.160Z",
+  "text": "I Ls)\n Compotid Leech\n Solution\n«Select 1group(s) of\n! monsters, and +31\n\n Gf ae Ven ohm LET",
+  "picture": "data/live/new-cards/instrument-i-ls.jpg"
+ },
+ {
+  "name": "Si",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:36:32.161Z",
+  "last": "2026-10-30T10:36:32.161Z",
+  "text": "\\ ) Si (\n\nf Nutagenic Powder\n1 lect 1-2 groups of\nSe al RNY OAL a",
+  "picture": "data/live/new-cards/instrument-si.jpg"
+ },
+ {
+  "name": "Toe",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:38:48.900Z",
+  "last": "2026-10-30T10:38:48.900Z",
+  "text": "Toe: \ni \n\nChey\nViviparous Hormon/\nAdd 1 group(s) of [i\nPENH A AXTY",
+  "picture": "data/live/new-cards/instrument-toe.jpg"
+ },
+ {
+  "name": "ps)",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:38:48.907Z",
+  "last": "2026-10-30T10:38:48.907Z",
+  "text": "ps)\n Compotid Leech\nJ Solution\n Select 1group(s) of\nI\n monsters, and +31\n gg A3N, cl FE",
+  "picture": "data/live/new-cards/instrument-ps.jpg"
+ },
+ {
+  "name": "IEC",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T10:38:48.912Z",
+  "last": "2026-10-30T10:38:48.912Z",
+  "text": "\\ IEC\n\nf nopurge Powder\n1 elect 1 group(s) of\n(\\ RAPS SI BTR",
+  "picture": "data/live/new-cards/instrument-iec.jpg"
+ },
+ {
+  "name": "Som, 1",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T10:40:33.098Z",
+  "last": "2026-10-30T10:40:33.098Z",
+  "text": "Som, 1\newitching\nSelect 1 group(s) of Sel\nrv mmebrmre fo omar], MAR ed",
+  "picture": "data/live/new-cards/potion-som-1.jpg"
+ },
+ {
+  "name": "N45",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T10:40:33.121Z",
+  "last": "2026-10-30T10:40:33.121Z",
+  "text": "N45\nOE )\nSelect 1-2 groups of\nnd remove\ninfe) Af",
+  "picture": "data/live/new-cards/potion-n45.jpg"
  }
 ]
