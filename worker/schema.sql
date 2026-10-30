@@ -32,25 +32,10 @@ CREATE TABLE IF NOT EXISTS summary (
 -- The daily limit per client (table quota, a row rewritten on every upload) was dropped on Oct 23 for the rate
 -- limit (wrangler.jsonc).
 
--- One row per instrument panel icon a player named in the Solver ("Which instrument did you pick?"):
--- `body` is {uid, name, pattern}, the pattern 576 grey levels of the icon, never a screenshot.
-CREATE TABLE IF NOT EXISTS icons (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  uid TEXT NOT NULL UNIQUE,
-  received TEXT NOT NULL,
-  client TEXT NOT NULL,
-  body TEXT NOT NULL
-);
-
--- One row per card the Solver couldn't name ("not recognised"), so it can be added for everyone: `body` is
--- {uid, phase, text, picture}, the text its printed title as read, the picture a small JPEG of the card alone.
-CREATE TABLE IF NOT EXISTS cards (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  uid TEXT NOT NULL UNIQUE,
-  received TEXT NOT NULL,
-  client TEXT NOT NULL,
-  body TEXT NOT NULL
-);
+-- Tables icons (panel icons players named) and cards (cards the Solver couldn't name) were dropped on 2026-10-30:
+-- the reader knows every card, and what came was other languages and misreads.
+DROP TABLE IF EXISTS icons;
+DROP TABLE IF EXISTS cards;
 
 -- Training data (src/training.ts): one row per card wanted for the reader, its GitHub issue and how many
 -- screenshots it has. key: phase:name, or phase:?letters of an unrecognised card's title.

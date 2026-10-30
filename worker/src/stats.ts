@@ -139,10 +139,11 @@ const RECENT = 25
  *  pulls in data/live/digest (scripts/live/collect.ts), so the boards themselves needn't be. run: its first 12
  *  characters, plenty to tell runs apart. played: past its first instrument offer (an instrument owned). unsure,
  *  corrected: its boards read with something unsure (or not the game screen) and corrected by hand, counted for games
- *  that started from Oct 25 (older ones never were). */
-export interface GameRecord { run: string; n: number; start: string; day: string; boards: number; round: number; read: number; app: boolean; version: string; played: boolean; final: number | null; predictions: number[]; last: number; score: number; unsure?: number; corrected?: number }
+ *  that started from Oct 25 (older ones never were). install: the device's install number as the digest keeps it
+ *  (hashed: scripts/live/collect.ts installKey), to compare one player's games across days; from Oct 30. */
+export interface GameRecord { run: string; install?: string; n: number; start: string; day: string; boards: number; round: number; read: number; app: boolean; version: string; played: boolean; final: number | null; predictions: number[]; last: number; score: number; unsure?: number; corrected?: number }
 /** One day's boards: how many, how many a player corrected or the reader was unsure of, the daily player codes and
- *  installs (their first 12 characters) seen, and the boards and problems per setup. */
+ *  installs (hashed, as the boards came: scripts/live/collect.ts installKey) seen, and the boards and problems per setup. */
 export interface DayRecord { day: string; boards: number; corrected: number; unsure: number; clients: string[]; installs: string[]; setups: Setup[]; cards?: DayCardCount[]; cardBoards?: Record<string, number> }
 type Setup = { by: string; group: string; boards: number; unsure: number; numbers: number }
 export type CardCount = { name: string; shown: number; unsure: number; corrected: number }
@@ -202,7 +203,7 @@ export function digest(rows: StatRow[], prior: Digest = emptyDigest()): Digest {
     const sure = !b.unsure?.includes('round')
     let g = current.get(run)
     if (!g || (sure && b.round < g.read)) {
-      g = { run, n: g ? g.n + 1 : 0, start: r.received, day, boards: 0, round: 0, read: 0, app: /-overlay$/.test(b.app), version, played: false, final: null, predictions: [], last: -1, score: 0, unsure: 0, corrected: 0 }
+      g = { run, ...(b.install ? { install: b.install.slice(0, RUN) } : {}), n: g ? g.n + 1 : 0, start: r.received, day, boards: 0, round: 0, read: 0, app: /-overlay$/.test(b.app), version, played: false, final: null, predictions: [], last: -1, score: 0, unsure: 0, corrected: 0 }
       games.set(gameKey(g), g)
       current.set(run, g)
     }

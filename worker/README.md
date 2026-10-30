@@ -4,14 +4,12 @@ The Solver shares the boards it reads (see the main README). This Worker stores 
 odds can be measured against the live game. It's a Cloudflare Worker with a D1 database, on Cloudflare's
 free plan: nothing is billed, and if a daily limit is hit, uploads simply fail until midnight UTC.
 
-- `POST /v1/icons`: one instrument icon a player named: the name and its 576-value grey pattern, nothing else.
-- `POST /v1/cards`: a card the Solver didn't recognise: the text it read and a small picture of that card alone. Exported
-  nightly into `data/live/new-cards/`.
+- `POST /v1/icons`, `POST /v1/cards`: an instrument icon a player named, a card the Solver didn't recognise. Kept until
+  2026-10-30; now answered as stored and dropped, so the Solver doesn't send them again (the reader knows every card).
 - `POST /v1/training/ask`, `POST /v1/training`: a screenshot of the game window for a card the reader has fewer than 3
   pictures of, or read slowly (`src/training.ts`): committed to the `training-data` branch of the private tidewarden/vorax-training-data and shown in one
   `Training Data: <card>` issue per card, at most 3 screenshots a card and 10 new cards a day. The app asks first, so
   a card no longer wanted is never sent.
-- `GET /v1/icons/export?after=ID`: the same as the boards export, for icons.
 - `POST /v1/snapshots`: 1 to 10 boards. Each is rebuilt from the fields the collector knows (card,
   instrument and protocol names from `src/names.json`, numbers within the engine's bounds); anything
   else is dropped. Retries can't make duplicates.

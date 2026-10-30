@@ -8,7 +8,7 @@ name: Deploy
 on:
   push:
     branches: [main]
-    paths-ignore: ['data/**', 'docs/**', 'scripts/**', 'worker/**', 'desktop/**', 'training/**', '.github/workflows/issue-fixer.yml', '.github/workflows/desktop.yml', '.github/workflows/dashboard.yml']
+    paths-ignore: ['data/**', 'docs/**', 'scripts/**', 'worker/**', 'desktop/**', 'training/**', '.github/workflows/issue-fixer.yml', '.github/workflows/desktop.yml', '.github/workflows/dashboard.yml', '.github/workflows/live-data.yml']
   workflow_dispatch:
 
 permissions:

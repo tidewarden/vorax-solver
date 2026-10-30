@@ -2,36 +2,15 @@
 import { handle, type Store } from '../../worker/src/index'
 import { memoryTraining } from './trainingStore'
 
-type Row = { id: number; uid: string; client: string; body: string }
-function memory(): Store & { summaries: string[]; batches: { id: number; received: string; body: string }[]; players: Set<string>; icons: Row[]; cards: Row[] } {
+function memory(): Store & { summaries: string[]; batches: { id: number; received: string; body: string }[]; players: Set<string> } {
   const batches: { id: number; received: string; body: string }[] = []
   const players = new Set<string>()
-  const icons: Row[] = []
-  const cards: Row[] = []
   const summaries: string[] = []
   return {
     ...memoryTraining(),
     summaries,
     batches,
     players,
-    icons,
-    cards,
-    async insertCard(r) {
-      if (cards.some(x => x.uid === r.uid)) return 0
-      cards.push({ id: cards.length + 1, ...r })
-      return 1
-    },
-    async exportCards(after, limit) {
-      return cards.filter(r => r.id > after).slice(0, limit)
-    },
-    async insertIcon(r) {
-      if (icons.some(x => x.uid === r.uid)) return 0
-      icons.push({ id: icons.length + 1, ...r })
-      return 1
-    },
-    async exportIcons(after, limit) {
-      return icons.filter(r => r.id > after).slice(0, limit)
-    },
     async insertBatch(body) {
       batches.push({ id: batches.length + 1, received: '2026-10-18T10:00:00.000Z', body })
     },
@@ -161,7 +140,7 @@ it('exports refuse everyone when the token is unset, "Bearer undefined" too', as
   const store = memory()
   await handle(post([snap(uid(1))]), unset, store)
   const as = (path: string, method = 'GET') => handle(new Request(`https://w.dev${path}`, { method, headers: { authorization: 'Bearer undefined' } }), unset, store)
-  for (const path of ['/v1/export?after=0', '/v1/icons/export?after=0', '/v1/cards/export?after=0']) expect((await as(path)).status).toBe(401)
+  expect((await as('/v1/export?after=0')).status).toBe(401)
   expect((await as('/v1/export/rotate?upto=1000000002', 'POST')).status).toBe(401)
   expect((await as('/v1/summary', 'PUT')).status).toBe(401)
 })
@@ -189,70 +168,16 @@ it('refuses an oversized body without reading it as JSON', async () => {
   expect((await handle(big, env, memory())).status).toBe(413)
 })
 
-const pattern = () => {
-  const v = Array.from({ length: 576 }, (_, i) => Math.sin(i))
-  const n = Math.hypot(...v)
-  return v.map(x => Math.round((x / n) * 1000) / 1000 || 0)
-}
 const icon = (body: unknown) => new Request('https://w.dev/v1/icons', { method: 'POST', body: JSON.stringify(body), headers: { 'cf-connecting-ip': '9.9.9.9' } })
-
-it('stores a named instrument icon once', async () => {
-  const store = memory()
-  const body = { uid: uid(7), name: 'Egg-Burdened Butterfly', pattern: pattern() }
-  expect((await handle(icon(body), env, store)).status).toBe(200)
-  await handle(icon(body), env, store)
-  expect(store.icons).toHaveLength(1)
-  expect(JSON.parse(store.icons[0].body)).toEqual(body)
-})
-
-it.each([
-  ['an unknown instrument', { name: 'Not An Instrument' }],
-  ['a short pattern', { pattern: [0.1, 0.2] }],
-  ['a pattern that is not a unit vector', { pattern: Array(576).fill(0.5) }],
-  ['a bad uid', { uid: 'x' }],
-])('refuses an icon with %s', async (_, patch) => {
-  const store = memory()
-  const res = await handle(icon({ uid: uid(8), name: 'Egg-Burdened Butterfly', pattern: pattern(), ...patch }), env, store)
-  expect(res.status).toBe(400)
-  expect(store.icons).toHaveLength(0)
-})
-
-it('icons export only with the token', async () => {
-  const store = memory()
-  await handle(icon({ uid: uid(9), name: 'Egg-Burdened Butterfly', pattern: pattern() }), env, store)
-  expect((await handle(new Request('https://w.dev/v1/icons/export?after=0'), env, store)).status).toBe(401)
-  const res = await handle(new Request('https://w.dev/v1/icons/export?after=0', { headers: { authorization: 'Bearer secret' } }), env, store)
-  expect((await res.json()).rows).toHaveLength(1)
-})
-
 const card = (body: unknown) => new Request('https://w.dev/v1/cards', { method: 'POST', body: JSON.stringify(body), headers: { 'cf-connecting-ip': '9.9.9.9' } })
-const jpeg = 'data:image/jpeg;base64,' + 'A'.repeat(4000)
 
-describe('a card the Solver couldn’t name', () => {
-  it('is stored once, with its title as read and a small picture of it', async () => {
-    const store = memory()
-    const body = { uid: uid(11), phase: 'potion', text: 'First Rite Holy Water: Confession\nThe throat is not only for', picture: jpeg }
-    expect((await handle(card(body), env, store)).status).toBe(200)
-    await handle(card(body), env, store)
-    expect(store.cards).toHaveLength(1)
-    expect(JSON.parse(store.cards[0].body)).toEqual(body)
-  })
-  it('keeps nothing else, and refuses anything that isn’t a card picture', async () => {
-    const store = memory()
-    await handle(card({ uid: uid(12), phase: 'potion', text: 'A card', picture: 'data:image/png;base64,AAAA', screen: 'x' }), env, store)
-    expect(JSON.parse(store.cards[0].body)).toEqual({ uid: uid(12), phase: 'potion', text: 'A card' })
-    expect((await handle(card({ uid: uid(13), phase: 'potion', text: '' }), env, store)).status).toBe(400)
-    expect((await handle(card({ uid: uid(14), phase: 'menu', text: 'A card' }), env, store)).status).toBe(400)
-    expect((await handle(card({ uid: uid(15), phase: 'potion', text: 'x'.repeat(2000) }), env, store)).status).toBe(200)
-    expect(JSON.parse(store.cards[1].body).text).toHaveLength(400)
-  })
-  it('is exported with the token only', async () => {
-    const store = memory()
-    await handle(card({ uid: uid(16), phase: 'instrument', text: 'A new instrument' }), env, store)
-    expect((await handle(new Request('https://w.dev/v1/cards/export?after=0'), env, store)).status).toBe(401)
-    const res = await handle(new Request('https://w.dev/v1/cards/export?after=0', { headers: { authorization: 'Bearer secret' } }), env, store)
-    expect((await res.json()).rows).toHaveLength(1)
-  })
+it('answers named icons and unnamed cards as stored, so the Solver doesn’t send them again, and keeps neither', async () => {
+  const store = memory()
+  expect(await (await handle(icon({ uid: uid(7), name: 'Egg-Burdened Butterfly', pattern: [] }), env, store)).json()).toEqual({ stored: 1 })
+  expect(await (await handle(card({ uid: uid(11), phase: 'potion', text: 'A card' }), env, store)).json()).toEqual({ stored: 1 })
+  expect(store.batches).toHaveLength(0)
+  for (const path of ['/v1/icons/export?after=0', '/v1/cards/export?after=0'])
+    expect((await handle(new Request(`https://w.dev${path}`, { headers: { authorization: 'Bearer secret' } }), env, store)).status).toBe(404)
 })
 
 describe('the dashboard summary the hourly workflow sends', () => {
@@ -311,16 +236,12 @@ describe('collection off (wrangler.jsonc ships COLLECTING on)', () => {
     const { readFileSync } = await import('node:fs')
     expect(JSON.parse(readFileSync('worker/wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '')).vars.COLLECTING).toBe('on')
   })
-  it('keeps no boards, icons or cards, but answers them as stored so the Solver doesn’t send them again', async () => {
+  it('keeps no boards, but answers them as stored so the Solver doesn’t send them again', async () => {
     const store = memory()
     const res = await handle(post([snap(uid(21))]), off, store)
     expect(res.status).toBe(200)
     expect((await res.json()).stored).toBe(1)
-    expect(await (await handle(icon({ uid: uid(22), name: 'Egg-Burdened Butterfly', pattern: pattern() }), off, store)).json()).toEqual({ stored: 1 })
-    expect(await (await handle(card({ uid: uid(23), phase: 'potion', text: 'A card', picture: jpeg }), off, store)).json()).toEqual({ stored: 1 })
     expect(store.batches).toHaveLength(0)
-    expect(store.icons).toHaveLength(0)
-    expect(store.cards).toHaveLength(0)
   })
   it('still counts the day’s players, for the dashboard', async () => {
     const store = memory()
@@ -329,6 +250,5 @@ describe('collection off (wrangler.jsonc ships COLLECTING on)', () => {
   })
   it('still refuses what isn’t from the Solver', async () => {
     expect((await handle(post([]), off, memory())).status).toBe(400)
-    expect((await handle(icon({ uid: 'x' }), off, memory())).status).toBe(400)
   })
 })

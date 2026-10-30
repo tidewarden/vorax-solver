@@ -107,30 +107,44 @@ it('pull spreads an upload’s boards out, and keeps each board once though its 
   }
 })
 
-it('pullIcons saves shared icons beside the boards, keeping the boards’ place in the export', async () => {
-  const { pull, pullIcons } = await import('../../scripts/live/collect')
-  const fs = await import('node:fs')
-  const { tmpdir } = await import('node:os')
-  const dir = fs.mkdtempSync(`${tmpdir()}/icons-`)
-  const cwd = process.cwd()
-  process.chdir(dir)
-  try {
-    const answers: Record<string, unknown[]> = {
-      '/v1/export?after=0': [{ rows: [{ id: 5, uid: 'a', received: '2026-10-18T01:00:00Z', body: '{"x":1}' }], last: 5 }],
-      '/v1/export?after=5': [{ rows: [], last: 5 }, { rows: [], last: 5 }],
-      '/v1/icons/export?after=0': [{ rows: [{ id: 3, uid: 'i', received: '2026-10-18T02:00:00Z', body: '{"name":"Egg-Burdened Butterfly"}' }], last: 3 }],
-      '/v1/icons/export?after=3': [{ rows: [], last: 3 }],
+describe('the public digest keeps no install number, only a keyed hash of it', () => {
+  const id = '0f8fad5b-d9cb-469f-a165-70867728950e'
+  it('hashes an install number by its first 12 characters, and leaves a hash as it is', async () => {
+    const { installKey } = await import('../../scripts/live/collect')
+    const k = installKey(id, 'salt')
+    expect(k).toMatch(/^[0-9a-f]{12}$/)
+    expect(installKey(id.slice(0, 12), 'salt')).toBe(k)
+    expect(installKey(k, 'salt')).toBe(k)
+    expect(installKey(id, 'another salt')).not.toBe(k)
+  })
+  it('in the boards it adds and the days it already had, and refuses to go on without the key', async () => {
+    const { installKey, loadDigest, saveDigest, updatedDigest } = await import('../../scripts/live/collect')
+    const fs = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const dir = fs.mkdtempSync(`${tmpdir()}/digest-`)
+    const cwd = process.cwd()
+    const salt = process.env.DIGEST_SALT
+    process.chdir(dir)
+    try {
+      fs.mkdirSync('data/live/digest', { recursive: true })
+      fs.writeFileSync('data/live/digest/2026-10-29.json', JSON.stringify({ day: { day: '2026-10-29', boards: 1, corrected: 0, unsure: 0, clients: [''], installs: [id.slice(0, 12)], setups: [] }, games: [] }))
+      fs.mkdirSync('data/live/raw', { recursive: true })
+      fs.writeFileSync('data/live/raw/2026-10-30.jsonl', JSON.stringify({ received: '2026-10-30T01:00:00Z', ...base({ install: id }) }) + '\n')
+      delete process.env.DIGEST_SALT
+      expect(() => updatedDigest()).toThrow(/DIGEST_SALT/)
+      process.env.DIGEST_SALT = 'salt'
+      saveDigest(updatedDigest())
+      const files = fs.readdirSync('data/live/digest').map(f => fs.readFileSync(`data/live/digest/${f}`, 'utf8')).join('')
+      expect(files).not.toContain(id.slice(0, 8))
+      const d = loadDigest()
+      expect(d.days.map(x => x.installs)).toEqual([[installKey(id, 'salt')], [installKey(id, 'salt')]])
+      expect(d.games[0].install).toBe(installKey(id, 'salt'))
+    } finally {
+      process.chdir(cwd)
+      if (salt === undefined) delete process.env.DIGEST_SALT
+      else process.env.DIGEST_SALT = salt
     }
-    const fetchFn = vi.fn(async (u: string) => new Response(JSON.stringify(answers[u.replace('https://w.dev', '')].shift())))
-    await pull('https://w.dev', 't', fetchFn as unknown as typeof fetch)
-    expect(await pullIcons('https://w.dev', 't', fetchFn as unknown as typeof fetch)).toBe(1)
-    expect(fs.readFileSync('data/live/icons.jsonl', 'utf8')).toBe('{"name":"Egg-Burdened Butterfly"}\n')
-    expect(JSON.parse(fs.readFileSync('data/live/state.json', 'utf8'))).toEqual({ last: 5, icons: 3 })
-    await pull('https://w.dev', 't', fetchFn as unknown as typeof fetch)
-    expect(JSON.parse(fs.readFileSync('data/live/state.json', 'utf8'))).toEqual({ last: 5, icons: 3 })
-  } finally {
-    process.chdir(cwd)
-  }
+  })
 })
 
 it('learns only from what was read for sure: a hand with an unsure card, or an unsure tank, doesn’t count', () => {

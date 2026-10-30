@@ -4,7 +4,8 @@
 # committed: the nightly live data does that (live-data.yml). Started by the
 # collector's cron trigger (worker/src/schedule.ts), with the schedule here as a backup. Or on demand:
 # gh workflow run dashboard.yml
-# Needs the repo variable LIVE_DATA_URL and the secret LIVE_DATA_TOKEN (see worker/README.md); until the
+# Needs the repo variable LIVE_DATA_URL and the secrets LIVE_DATA_TOKEN (see worker/README.md) and DIGEST_SALT (the
+# key the digest's install numbers are hashed with, as live-data.yml); until the
 # variable is set, the job is skipped. The dashboard's usage panel (scripts/live/usage.ts) also needs the secrets
 # CF_ANALYTICS_TOKEN (a Cloudflare token with only Account Analytics: Read) with CLOUDFLARE_ACCOUNT_ID, and
 # GH_BILLING_TOKEN (a fine-grained GitHub token with only the account permission Plan: read); without them it's
@@ -46,6 +47,7 @@ jobs:
         env:
           LIVE_DATA_URL: ${{ vars.LIVE_DATA_URL }}
           LIVE_DATA_TOKEN: ${{ secrets.LIVE_DATA_TOKEN }}
+          DIGEST_SALT: ${{ secrets.DIGEST_SALT }}
           CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           GH_BILLING_TOKEN: ${{ secrets.GH_BILLING_TOKEN }}

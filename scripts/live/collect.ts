@@ -3,7 +3,9 @@
 // Since Oct 23 the collector keeps an upload's boards together: its export row's body is an array of them.
 // Since Oct 24 the raw boards stay on the PC that pulls them, for a week (scripts/nightly.sh), out of git: what the
 // dashboard needs of them is kept in git as a digest (data/live/digest/<day>.json: the day's boards counted, and the
-// games started that day; worker/src/stats.ts digest), added to on each pull.
+// games started that day; worker/src/stats.ts digest), added to on each pull. The digest is public: it keeps no
+// install number, only a keyed hash of it (installKey).
+import { createHmac } from 'node:crypto'
 import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import type { Snapshot } from '../../src/solver/share/snapshot'
 import { digest, emptyDigest, report, type Digest, type DayRecord, type GameRecord, type StatRow, type Usage } from '../../worker/src/stats'
@@ -13,8 +15,8 @@ const RAW = `${DIR}/raw`
 
 interface Row { id: number; received: string; body: string }
 
-// Where each export was read up to: { last } for boards, { icons } for named panel icons, { cards } for cards
-// the Solver couldn't name.
+// Where the boards' export was read up to: { last }. (Named panel icons, { icons }, and cards the Solver couldn't
+// name, { cards }, were pulled too until 2026-10-30.)
 const STATE = `${DIR}/state.json`
 const readState = (): Record<string, number> => (existsSync(STATE) ? JSON.parse(readFileSync(STATE, 'utf8')) : {})
 
@@ -56,44 +58,39 @@ export async function pull(url: string, token: string, fetchFn: typeof fetch = f
   return added
 }
 
-/** Panel icons players named, into data/live/icons.jsonl: checked by hand before they join the reader's data. */
-export async function pullIcons(url: string, token: string, fetchFn: typeof fetch = fetch): Promise<number> {
-  mkdirSync(DIR, { recursive: true })
-  return drain(url, token, '/v1/icons/export', 'icons', fetchFn, r => appendFileSync(`${DIR}/icons.jsonl`, r.body + '\n'))
-}
-
-/** Cards the Solver couldn't name, into data/live/cards.jsonl (without their pictures): the first picture of each
- *  card is kept as data/live/new-cards/<card>.jpg. scripts/live/newCards.ts lists them and opens an issue for each. */
-export async function pullCards(url: string, token: string, fetchFn: typeof fetch = fetch): Promise<number> {
-  mkdirSync(`${DIR}/new-cards`, { recursive: true })
-  return drain(url, token, '/v1/cards/export', 'cards', fetchFn, r => {
-    const c = JSON.parse(r.body) as { phase: string; text: string; picture?: string }
-    const name = cardName(c.text)
-    const file = `${DIR}/new-cards/${slug(c.phase, name)}.jpg`
-    if (c.picture && !existsSync(file)) writeFileSync(file, Buffer.from(c.picture.slice(c.picture.indexOf(',') + 1), 'base64'))
-    appendFileSync(`${DIR}/cards.jsonl`, JSON.stringify({ received: r.received, phase: c.phase, name, text: c.text }) + '\n')
-  })
-}
-
-/** A card's name: its title's first line as read, without stray marks at either end. */
-export const cardName = (text: string) => text.split('\n')[0].replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N})]+$/gu, '').trim()
-/** A file name for a card: its pick and name, lower case. */
-export const slug = (phase: string, name: string) => `${phase}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'unnamed'}`
-
 export function allRows(): Snapshot[] {
   if (!existsSync(RAW)) return []
   return readdirSync(RAW).filter(f => f.endsWith('.jsonl')).sort()
     .flatMap(f => readFileSync(`${RAW}/${f}`, 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l) as Snapshot))
 }
 
+const HASHED = /^[0-9a-f]{12}$/
+
+/** A device's install number as the public digest keeps it: a keyed hash of its first 12 characters, so players
+ *  are still counted across days but no one can find their own install number (vorax.install in the browser) in
+ *  it. The key is the repo secret DIGEST_SALT. One already hashed (12 hex digits; an install number has a '-' 9th)
+ *  stays as it is. */
+export function installKey(id: string, salt: string): string {
+  return HASHED.test(id) ? id : createHmac('sha256', salt).update(id.slice(0, 12)).digest('hex').slice(0, 12)
+}
+
+function digestSalt(): string {
+  const salt = process.env.DIGEST_SALT
+  if (!salt) throw new Error('DIGEST_SALT is not set: the digest would keep install numbers')
+  return salt
+}
+
+const INSTALL = /"install":"([^"]+)"/
+
 /** Every board for the dashboard's numbers, in the order they were stored, each with when it came (boards pulled
- *  before that was kept have their file's date). The daily player code never leaves the collector: it adds the
- *  counts by it itself. */
+ *  before that was kept have their file's date) and its install number hashed (installKey). The daily player code
+ *  never leaves the collector: it adds the counts by it itself. */
 export function statRows(): StatRow[] {
   if (!existsSync(RAW)) return []
   return readdirSync(RAW).filter(f => f.endsWith('.jsonl')).sort().flatMap(f =>
-    readFileSync(`${RAW}/${f}`, 'utf8').split('\n').filter(Boolean).map(body => {
-      const received = /^\{"received":"([^"]+)"/.exec(body)?.[1] ?? `${f.slice(0, 10)}T00:00:00.000Z`
+    readFileSync(`${RAW}/${f}`, 'utf8').split('\n').filter(Boolean).map(line => {
+      const received = /^\{"received":"([^"]+)"/.exec(line)?.[1] ?? `${f.slice(0, 10)}T00:00:00.000Z`
+      const body = line.replace(INSTALL, (_, id: string) => `"install":"${installKey(id, digestSalt())}"`)
       return { received, client: '', body }
     }))
 }
@@ -101,13 +98,14 @@ export function statRows(): StatRow[] {
 const DIGEST = `${DIR}/digest`
 const DAY_FILE = /^\d{4}-\d\d-\d\d\.json$/
 
-/** The digest in data/live/digest, or an empty one. */
+/** The digest in data/live/digest, or an empty one; any install number in it from before Oct 30 hashed
+ *  (installKey). */
 export function loadDigest(): Digest {
   const d = emptyDigest()
   if (!existsSync(DIGEST)) return d
   for (const f of readdirSync(DIGEST).filter(f => DAY_FILE.test(f)).sort()) {
     const x = JSON.parse(readFileSync(`${DIGEST}/${f}`, 'utf8')) as { day: DayRecord | null; games: GameRecord[] }
-    if (x.day) d.days.push(x.day)
+    if (x.day) d.days.push(x.day.installs.every(i => HASHED.test(i)) ? x.day : { ...x.day, installs: [...new Set(x.day.installs.map(i => installKey(i, digestSalt())))].sort() })
     d.games.push(...x.games)
   }
   if (existsSync(`${DIGEST}/upto.txt`)) d.upto = readFileSync(`${DIGEST}/upto.txt`, 'utf8').trim()

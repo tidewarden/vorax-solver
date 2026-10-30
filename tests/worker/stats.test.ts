@@ -203,6 +203,9 @@ describe('players ever', () => {
   it('player-days: every day’s players added up, for the days before installs were counted', () => {
     expect(s.totals.playerDays).toBe(4)
   })
+  it('each game keeps its install, to follow one player across days', () => {
+    expect(digest(rows).games.map(g => g.install)).toEqual([undefined, i1.slice(0, 12), i1.slice(0, 12), i2.slice(0, 12)])
+  })
 })
 
 describe('games and final scores, as they really are', () => {
