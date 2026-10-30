@@ -189,6 +189,15 @@
   "picture": "data/live/new-cards/potion-en.jpg"
  },
  {
+  "name": "NE",
+  "phase": "potion",
+  "seen": 8,
+  "first": "2026-10-21T13:04:41.384Z",
+  "last": "2026-10-30T12:55:07.132Z",
+  "text": "NE\n Incub tion Elixir:\nHollow Cocoon\nIt promises form to the\nformless flesh, a secret\nrovonant of fliche",
+  "picture": "data/live/new-cards/potion-ne.jpg"
+ },
+ {
   "name": "S",
   "phase": "potion",
   "seen": 8,
@@ -223,15 +232,6 @@
   "last": "2026-10-29T07:29:57.863Z",
   "text": "se)\n\n\"wD,\n\n2\n O6e36onnnaiowasn\nyb HacToiika - Aruto\ni BeiGupaet 1rpynn",
   "picture": "data/live/new-cards/potion-se.jpg"
- },
- {
-  "name": "NE",
-  "phase": "potion",
-  "seen": 7,
-  "first": "2026-10-21T13:04:41.384Z",
-  "last": "2026-10-30T02:35:57.518Z",
-  "text": "NE\n Incub tion Elixir:\nHollow Cocoon\nIt promises form to the\nformless flesh, a secret\nrovonant of fliche",
-  "picture": "data/live/new-cards/potion-ne.jpg"
  },
  {
   "name": "EY",
@@ -414,6 +414,15 @@
   "picture": "data/live/new-cards/potion-ss.jpg"
  },
  {
+  "name": "ON",
+  "phase": "potion",
+  "seen": 5,
+  "first": "2026-10-27T08:03:17.235Z",
+  "last": "2026-10-30T11:49:02.922Z",
+  "text": "oN\n \nOpypuariioalowas\nHacTolika\nBbiGupaet 1 rpynn\nEN I PY 7a",
+  "picture": "data/live/new-cards/potion-on.jpg"
+ },
+ {
   "name": "i",
   "phase": "instrument",
   "seen": 5,
@@ -549,13 +558,13 @@
   "picture": "data/live/new-cards/potion-ses.jpg"
  },
  {
-  "name": "ON",
+  "name": "oA",
   "phase": "potion",
   "seen": 4,
-  "first": "2026-10-27T08:03:17.235Z",
-  "last": "2026-10-28T18:30:30.267Z",
-  "text": "oN\n \nOpypuariioalowas\nHacTolika\nBbiGupaet 1 rpynn\nEN I PY 7a",
-  "picture": "data/live/new-cards/potion-on.jpg"
+  "first": "2026-10-25T23:35:54.039Z",
+  "last": "2026-10-30T11:49:02.917Z",
+  "text": "oA \n one\ni AB]\n Anesthetic pea] Xo\ni Select 1 group(s)  Se",
+  "picture": "data/live/new-cards/potion-oa.jpg"
  },
  {
   "name": "li",
@@ -763,15 +772,6 @@
   "last": "2026-10-27T06:43:23.490Z",
   "text": "re\n Fourth Ri7+5ly Water: \nEucharist\n In this feast, you are.\n boththesaint and the\nIasmbhiinan tho nlattar",
   "picture": "data/live/new-cards/potion-re.jpg"
- },
- {
-  "name": "oA",
-  "phase": "potion",
-  "seen": 3,
-  "first": "2026-10-25T23:35:54.039Z",
-  "last": "2026-10-29T01:58:16.303Z",
-  "text": "oA \n one\ni AB]\n Anesthetic pea] Xo\ni Select 1 group(s)  Se",
-  "picture": "data/live/new-cards/potion-oa.jpg"
  },
  {
   "name": "Cle",
@@ -2077,6 +2077,15 @@
   "last": "2026-10-29T19:53:16.331Z",
   "text": "ms )\n\\\n\\ \\  ’\n»-— v\n/ \n— a\nect ee 5\n273)\nVN\nCL —— ——",
   "picture": "data/live/new-cards/potion-ms.jpg"
+ },
+ {
+  "name": "ree",
+  "phase": "potion",
+  "seen": 2,
+  "first": "2026-10-29T07:29:06.036Z",
+  "last": "2026-10-30T12:54:52.742Z",
+  "text": "Ree) \nThird Ria 1oly Water:\nPxination\nLight’iS not always\nrrarmtl Aa cart mb vt me",
+  "picture": "data/live/new-cards/potion-ree.jpg"
  },
  {
   "name": "75",
@@ -15570,15 +15579,6 @@
   "picture": "data/live/new-cards/potion-len.jpg"
  },
  {
-  "name": "ree",
-  "phase": "potion",
-  "seen": 1,
-  "first": "2026-10-29T07:29:06.036Z",
-  "last": "2026-10-29T07:29:06.036Z",
-  "text": "ree\n\nee)\n\nNZ \nnec Sa Nn\n3ra HacToMKa - AruT\nhae Bbibupaer 1 rpynf",
-  "picture": "data/live/new-cards/potion-ree.jpg"
- },
- {
   "name": "of",
   "phase": "potion",
   "seen": 1,
@@ -17737,5 +17737,68 @@
   "last": "2026-10-30T10:40:33.121Z",
   "text": "N45\nOE )\nSelect 1-2 groups of\nnd remove\ninfe) Af",
   "picture": "data/live/new-cards/potion-n45.jpg"
+ },
+ {
+  "name": "Th",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T11:49:02.877Z",
+  "last": "2026-10-30T11:49:02.877Z",
+  "text": "Th,\nREED)\nHAL C Tim INES\n201b—T Ens EB",
+  "picture": "data/live/new-cards/potion-th.jpg"
+ },
+ {
+  "name": "BUGIE oi",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T12:25:35.242Z",
+  "last": "2026-10-30T12:25:35.242Z",
+  "text": "BUGIE oi \nto Cell6 . :",
+  "picture": "data/live/new-cards/instrument-bugie-oi.jpg"
+ },
+ {
+  "name": "bE BE a ht Sy",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T12:25:35.245Z",
+  "last": "2026-10-30T12:25:35.245Z",
+  "text": "bE BE a ht Sy\n ‘ { i! \\, Ha\n ro  494 H 3\nDE EOE FEY tr RE [F\n; Ef\neS  ht  ! Loh vd A\npr 12S Be 0. I fol\n§oloed ir) \\ t [14\n(Ea of IY 50 BENNY. \n { !\neh 2 L\ni A\nPr 1 g— oo",
+  "picture": "data/live/new-cards/instrument-be-be-a-ht-sy.jpg"
+ },
+ {
+  "name": "nato Cell9",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T12:25:35.244Z",
+  "last": "2026-10-30T12:25:35.244Z",
+  "text": "nato Cell9",
+  "picture": "data/live/new-cards/instrument-nato-cell9.jpg"
+ },
+ {
+  "name": "de BOE de li",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T12:25:35.261Z",
+  "last": "2026-10-30T12:25:35.261Z",
+  "text": "de BOE de li\nBod Sind fs\nEL RE hs RR 1A] \nVL ed",
+  "picture": "data/live/new-cards/instrument-de-boe-de-li.jpg"
+ },
+ {
+  "name": "TIP iy NEL TE EEE",
+  "phase": "instrument",
+  "seen": 1,
+  "first": "2026-10-30T12:25:35.255Z",
+  "last": "2026-10-30T12:25:35.255Z",
+  "text": "TIP iy NEL TE EEE \n: mi } 1 [LAL jh i\ni ArT  UE \nWr Ae gd ler\n\nFEU HLT nT BEARER EA\n22 oo edly Ih",
+  "picture": "data/live/new-cards/instrument-tip-iy-nel-te-eee.jpg"
+ },
+ {
+  "name": "i Bi",
+  "phase": "potion",
+  "seen": 1,
+  "first": "2026-10-30T13:24:39.660Z",
+  "last": "2026-10-30T13:24:39.660Z",
+  "text": "i Bi\n( +40 Quantity to Se",
+  "picture": "data/live/new-cards/potion-i-bi.jpg"
  }
 ]
