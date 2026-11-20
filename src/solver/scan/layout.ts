@@ -23,10 +23,22 @@ const ULTRAWIDE: TankScene = { x: [-858, -421, 16, 454, 913, 1386], name: [556, 
 const SQUARE_4_3: TankScene = { x: [-445, -201, 40, 284, 535, 795], name: [590, 610], total: [611, 631], aq: [633, 653], icon: 575, iconSize: 22, jar: { dx: [24, 18, 6, 5, -2, -16], w: 160, y: [313, 664] } }
 const WIDE_16_10: TankScene = { x: [-610, -309, -10, 287, 597, 912], name: [555, 575], total: [576, 596], aq: [598, 618], icon: 540, iconSize: 22, jar: { dx: [30, 23, 7, 6, -3, -20], w: 195, y: [206, 629] } }
 const WIDE_16_9: TankScene = { x: [-756, -400, -48, 304, 667, 1037], name: [511, 531], total: [532, 552], aq: [554, 574], icon: 496, iconSize: 22, jar: { dx: [35, 27, 8, 7, -3, -23], w: 230, y: [90, 585] } }
+/** Three windows between 16:9 and 21:9 (Oct 20-25, one player): the straight blend put their labels up to 10 too high
+ *  and 20-60 too far left, more to the right of the row, so every icon read as Agito. Each measured as the shift at which
+ *  the tanks' totals and A x Q read sharpest and multiply, on 19-39 frames per tank: 2469x1180 at interface scale 1.044
+ *  (from the log), 2409x1106 at 1.145 and 2522x1081 at 0.957 (from their rounds and headers). jar: the blend's. */
+const WINDOW_2_09: TankScene = { x: [-784, -382, 20, 424, 845, 1279], name: [544, 564], total: [565, 586], aq: [587, 607], icon: 525, iconSize: 24, jar: { dx: [46, 37, 20, 13, -1, -25], w: 261, y: [76, 608] } }
+const WINDOW_2_18: TankScene = { x: [-805, -389, 25, 443, 879, 1328], name: [548, 569], total: [570, 591], aq: [591, 611], icon: 528, iconSize: 25, jar: { dx: [49, 39, 24, 15, -1, -26], w: 269, y: [72, 614] } }
+const WINDOW_2_33: TankScene = { x: [-868, -427, 13, 457, 920, 1397], name: [556, 577], total: [578, 600], aq: [599, 619], icon: 534, iconSize: 26, jar: { dx: [55, 44, 30, 18, 0, -27], w: 285, y: [65, 626] } }
 const ASPECT_4_3 = 4 / 3
 const ASPECT_16_10 = 1680 / 1050
 const ASPECT_16_9 = 16 / 9
 const ASPECT_ULTRAWIDE = 3440 / 1440
+/** Every measured shape, narrowest first: between two, the tanks' labels are blended; outside them, the nearest is kept */
+const SHAPES: [number, TankScene][] = [
+  [ASPECT_4_3, SQUARE_4_3], [ASPECT_16_10, WIDE_16_10], [ASPECT_16_9, WIDE_16_9],
+  [2469 / 1180, WINDOW_2_09], [2409 / 1106, WINDOW_2_18], [2522 / 1081, WINDOW_2_33], [ASPECT_ULTRAWIDE, ULTRAWIDE],
+]
 const LABEL_HALF_W = 200
 
 const mix = (a: number, b: number, t: number) => a + (b - a) * t
@@ -34,8 +46,10 @@ const mixPair = (a: [number, number], b: [number, number], t: number): [number, 
 
 /** The tanks' labels for a screen of this shape. */
 export function tankScene(aspect: number): TankScene {
-  const [lo, hi, a, b] = aspect < ASPECT_16_10 ? [SQUARE_4_3, WIDE_16_10, ASPECT_4_3, ASPECT_16_10]
-    : aspect < ASPECT_16_9 ? [WIDE_16_10, WIDE_16_9, ASPECT_16_10, ASPECT_16_9] : [WIDE_16_9, ULTRAWIDE, ASPECT_16_9, ASPECT_ULTRAWIDE]
+  // the first measured shape wider than this screen, and the one before it (past the widest, the last two)
+  const wider = SHAPES.findIndex(([w]) => aspect < w)
+  const j = wider === -1 ? SHAPES.length - 1 : Math.max(1, wider)
+  const [[a, lo], [b, hi]] = [SHAPES[j - 1], SHAPES[j]]
   const t = Math.min(1, Math.max(0, (aspect - a) / (b - a)))
   return {
     x: hi.x.map((x, i) => mix(lo.x[i], x, t)),
